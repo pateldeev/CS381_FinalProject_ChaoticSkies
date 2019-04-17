@@ -6,6 +6,7 @@ class InputMgr;
 class SoundMgr;
 class GameMgr;
 class EntityMgr;
+class UIMgr;
 
 class Engine {
 public:
@@ -33,6 +34,9 @@ public:
 	EntityMgr* GetEntityMgr(void);
 	const EntityMgr* GetEntityMgr(void) const;
 
+	UIMgr* GetUIMgr(void);
+	const UIMgr* GetUIMgr(void) const;
+
 	bool IsRunning(void) const;
 	void StopRunning(void);
 
@@ -45,6 +49,7 @@ private:
 	SoundMgr* m_sound_mgr;
 	GameMgr* m_game_mgr;
 	EntityMgr* m_entity_mgr;
+	UIMgr* m_UI_mgr;
 
 	bool m_running;
 };

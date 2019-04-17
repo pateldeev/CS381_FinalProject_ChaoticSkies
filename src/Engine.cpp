@@ -5,9 +5,10 @@
 #include "SoundMgr.h"
 #include "GameMgr.h"
 #include "EntityMgr.h"
+#include "UIMgr.h"
 
 Engine::Engine(void) :
-	m_gfx_mgr(nullptr), m_input_mgr(nullptr), m_sound_mgr(nullptr), m_game_mgr(nullptr), m_entity_mgr(nullptr), m_running(false) {
+	m_gfx_mgr(nullptr), m_input_mgr(nullptr), m_sound_mgr(nullptr), m_game_mgr(nullptr), m_entity_mgr(nullptr), m_UI_mgr(nullptr), m_running(false) {
 }
 
 Engine::~Engine(void) {
@@ -18,6 +19,7 @@ Engine::~Engine(void) {
 	delete m_sound_mgr;
 	delete m_input_mgr;
 	delete m_gfx_mgr;
+	delete m_UI_mgr;
 }
 
 void Engine::Init(void) {
@@ -26,18 +28,21 @@ void Engine::Init(void) {
 	m_sound_mgr = new SoundMgr(this);
 	m_game_mgr = new GameMgr(this);
 	m_entity_mgr = new EntityMgr(this);
+	//m_UI_mgr = new UIMgr(this);
 
 	m_gfx_mgr->Init();
 	m_input_mgr->Init();
 	m_sound_mgr->Init();
 	m_game_mgr->Init();
 	m_entity_mgr->Init();
+	//m_UI_mgr->Init();
 
 	m_gfx_mgr->LoadLevel();
 	m_input_mgr->LoadLevel();
 	m_sound_mgr->LoadLevel();
 	m_game_mgr->LoadLevel();
 	m_entity_mgr->LoadLevel();
+	//m_UI_mgr->LoadLevel();
 
 	m_running = true;
 }
@@ -64,6 +69,7 @@ void Engine::Cleanup(void) {
 	m_sound_mgr->Stop();
 	m_input_mgr->Stop();
 	m_gfx_mgr->Stop();
+	//m_UI_mgr->Stop();
 }
 
 GfxMgr* Engine::GetGfxMgr(void) {
@@ -106,6 +112,14 @@ const EntityMgr* Engine::GetEntityMgr(void) const {
 	return m_entity_mgr;
 }
 
+UIMgr* Engine::GetUIMgr(void) {
+	return m_UI_mgr;
+}
+
+const UIMgr* Engine::GetUIMgr(void) const {
+	return m_UI_mgr;
+}
+
 bool Engine::IsRunning(void) const {
 	return m_running;
 }
@@ -120,5 +134,6 @@ void Engine::TickAll(float dt) {
 	m_sound_mgr->Tick(dt);
 	m_game_mgr->Tick(dt);
 	m_entity_mgr->Tick(dt);
+	//m_UI_mgr->Tick(dt);
 }
 

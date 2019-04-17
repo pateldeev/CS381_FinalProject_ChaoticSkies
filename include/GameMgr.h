@@ -13,10 +13,10 @@ public:
 	virtual ~GameMgr(void);
 
 public:
-	virtual void Init(void) override;
-	virtual void LoadLevel(void) override;
-	virtual void Tick(float dt) override;
-	virtual void Stop(void) override;
+	virtual void Init(void) override final;
+	virtual void LoadLevel(void) override final;
+	virtual void Tick(float dt) override final;
+	virtual void Stop(void) override final;
 
 public:
 	void InjectKeyPress(const OIS::KeyCode& key);
