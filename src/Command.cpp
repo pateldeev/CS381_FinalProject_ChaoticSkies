@@ -21,9 +21,9 @@ bool Command::Done(void) const {
 }
 
 void Command::DrawBoundingBox(bool draw_all) const {
-	m_parent->m_scene_node->showBoundingBox(true);
+	m_parent->ShowBoundingBox();
 #ifdef EDIT_BOUNDINGBOX_COLOR_EXPERIMENAL
-	static_cast<BoudingBoxColorChangerExperimenatal*>(m_parent->m_scene_node)->MakeBoundingBoxBlack();
+	static_cast<BoudingBoxColorChangerExperimenatal*>(m_parent->GetOgreSceneNode())->MakeBoundingBoxBlack();
 #endif
 }
 

@@ -20,14 +20,46 @@ public:
 
 	void MakeSelectionSound(void);
 
-	std::string GetName(void) const;
-
 	void RemoveAllCommands(void);
 	void AddCommand(Command *c, bool remove_past = false);
 
+	void LoadAudio(void);
+
 	virtual void FixMeshOrientation(float &yaw, float &pitch, float &roll);
 
+	void ShowBoundingBox(void) const;
+	void TurnOffBoundingBox(void) const;
+
 public:
+	std::string GetName(void) const;
+
+	Ogre::SceneNode* GetOgreSceneNode(void);
+	const Ogre::SceneNode* GetOgreSceneNode(void) const;
+
+	Ogre::Vector3 GetPosition(void) const;
+	Ogre::Vector3 GetVelocity(void) const;
+
+	float GetSpeed(void) const;
+	float GetSpeedDesired(void) const;
+	void SetSpeedDesired(float speed, bool accumulate = false);
+
+	float GetHeading(void) const;
+	float GetHeadingDesired(void) const;
+	void SetHeadingDesired(float heading, bool accumulate = false);
+
+	float GetPitch(void) const;
+	float GetPitchDesired(void) const;
+	void SetPitchDesired(float pitch, bool accumulate = false);
+
+	float GetRoll(void) const;
+	float GetRollDesired(void) const;
+	void SetRollDesired(float roll, bool accumulate = false);
+
+	float GetSpeedMax(void) const;
+
+	const AspectUnitAI* GetAIAspect(void) const;
+
+protected:
 	Engine *m_engine;
 
 	int m_id;
@@ -60,8 +92,13 @@ public:
 
 	AspectUnitAI *m_aspect_ai;
 
-protected:
 	std::vector<Aspect*> m_aspects;
+
+	friend class Aspect;
+	friend class AspectPhysics2D;
+	friend class AspectPhysics3D;
+	friend class AspectRenderable;
+	friend class AspectUnitAI;
 };
 
 enum Entity381Types {

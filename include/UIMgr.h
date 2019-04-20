@@ -2,6 +2,8 @@
 #define UIMGR_H_
 
 #include <OGRE/OgreWindowEventUtilities.h>
+#include <OGRE/Overlay/OgreOverlaySystem.h>
+
 #include <OIS/OISEvents.h>
 #include <OIS/OISInputManager.h>
 #include <OIS/OISKeyboard.h>
@@ -13,12 +15,7 @@
 
 #include "Mgr.h"
 
-class UIMgr: public Mgr,
-	public Ogre::FrameListener,
-	public OIS::KeyListener,
-	public OIS::MouseListener,
-	public Ogre::WindowEventListener,
-	public OgreBites::SdkTrayListener {
+class UIMgr: public Mgr, public OgreBites::SdkTrayListener {
 
 public:
 	UIMgr(Engine *engine);
@@ -30,23 +27,25 @@ public:
 	virtual void Tick(float dt) override final;
 	virtual void Stop(void) override final;
 
-protected:
-	virtual void windowResized(Ogre::RenderWindow *rw) override;
-	virtual void windowClosed(Ogre::RenderWindow *rw) override;
+public:
+	bool InjectMouseMovement(const OIS::MouseEvent &me);
+	bool InjectMousePress(const OIS::MouseEvent &me, OIS::MouseButtonID id);
+	bool InjectMouseRelease(const OIS::MouseEvent &me, OIS::MouseButtonID id);
 
-	virtual bool keyPressed(const OIS::KeyEvent &arg) override;
-	virtual bool keyReleased(const OIS::KeyEvent &arg) override;
-	virtual bool mouseMoved(const OIS::MouseEvent &arg) override;
-	virtual bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
-	virtual bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id) override;
+public:
+	float GetHealthPercentage(void) const;
+	void SetHealthBarPercentage(float percentage);
 
-	void buttonHit(OgreBites::Button *b);
-	void itemSelected(OgreBites::SelectMenu *m);
+private:
+	virtual void buttonHit(OgreBites::Button *b) override final;
+	virtual void itemSelected(OgreBites::SelectMenu *m) override final;
 
 private:
 	OgreBites::InputContext m_input_context;
 	OgreBites::SdkTrayManager* m_tray_mgr;
 	Ogre::OverlaySystem* m_overlay_system;
+
+	OgreBites::ProgressBar* m_health_bar;
 	OgreBites::Label* m_label;
 	OgreBites::Label* m_info_label;
 	OgreBites::Label* m_info_label2;

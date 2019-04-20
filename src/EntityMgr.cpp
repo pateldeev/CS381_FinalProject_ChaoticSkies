@@ -5,6 +5,7 @@
 #include "SoundMgr.h"
 #include "GameMgr.h"
 #include "EntityMgr.h"
+#include "UIMgr.h"
 
 EntityMgr::EntityMgr(Engine* engine) :
 	Mgr(engine), m_entity_selected(nullptr), m_entity_selected_index(-1) {
@@ -17,9 +18,10 @@ EntityMgr::~EntityMgr(void) {
 void EntityMgr::Init(void) {
 
 }
+
 void EntityMgr::LoadLevel(void) {
 	for (Entity381* e : m_entities)
-		m_engine->GetSoundMgr()->LoadAudio(e->m_selection_sound, &e->m_audio_id, false);
+		e->LoadAudio();
 }
 
 void EntityMgr::Tick(float dt) {
@@ -27,17 +29,17 @@ void EntityMgr::Tick(float dt) {
 		e->Tick(dt);
 
 	if (m_entity_selected) {
-		m_entity_selected->m_aspect_ai->DrawBoundingBox(true);
-		m_entity_selected->m_scene_node->showBoundingBox(true);
+		m_entity_selected->GetAIAspect()->DrawBoundingBox(true);
+		m_entity_selected->ShowBoundingBox();
 #ifdef EDIT_BOUNDINGBOX_COLOR_EXPERIMENAL
-		static_cast<BoudingBoxColorChangerExperimenatal*>(m_entity_selected->m_scene_node)->MakeBoundingBoxGreen();
+		static_cast<BoudingBoxColorChangerExperimenatal*>(m_entity_selected->GetOgreSceneNode())->MakeBoundingBoxGreen();
 #endif
 	}
 
 	for (unsigned int i : m_entities_selected) {
-		m_entities[i]->m_scene_node->showBoundingBox(true);
+		m_entities[i]->ShowBoundingBox();
 #ifdef EDIT_BOUNDINGBOX_COLOR_EXPERIMENAL
-		static_cast<BoudingBoxColorChangerExperimenatal*>(m_entities[i]->m_scene_node)->MakeBoundingBoxBlue();
+		static_cast<BoudingBoxColorChangerExperimenatal*>(m_entities[i]->GetOgreSceneNode())->MakeBoundingBoxBlue();
 #endif
 
 	}
@@ -146,74 +148,42 @@ int EntityMgr::GetEntityIndex(const std::string &name) const {
 }
 
 void EntityMgr::ChangeSelectedDesiredSpeed(float change, bool accumulate) {
-	if (m_entity_selected) {
-		if (accumulate)
-			m_entity_selected->m_desired_speed += change;
-		else
-			m_entity_selected->m_desired_speed = change;
-	}
-	for (unsigned int i : m_entities_selected) {
-		if (accumulate)
-			m_entities[i]->m_desired_speed += change;
-		else
-			m_entities[i]->m_desired_speed = change;
-	}
+	if (m_entity_selected)
+		m_entity_selected->SetSpeedDesired(change, accumulate);
+	for (unsigned int i : m_entities_selected)
+		m_entities[i]->SetSpeedDesired(change, accumulate);
 }
 
 void EntityMgr::ChangeSelectedDesiredHeading(float change, bool accumulate) {
-	if (m_entity_selected) {
-		if (accumulate)
-			m_entity_selected->m_desired_heading += change;
-		else
-			m_entity_selected->m_desired_heading = change;
-	}
-	for (unsigned int i : m_entities_selected) {
-		if (accumulate)
-			m_entities[i]->m_desired_heading += change;
-		else
-			m_entities[i]->m_desired_heading = change;
-	}
+	if (m_entity_selected)
+		m_entity_selected->SetHeadingDesired(change, accumulate);
+	for (unsigned int i : m_entities_selected)
+		m_entities[i]->SetHeadingDesired(change, accumulate);
 }
 
 void EntityMgr::ChangeSelectedDesiredPitch(float change, bool accumulate) {
-	if (m_entity_selected) {
-		if (accumulate)
-			m_entity_selected->m_desired_pitch += change;
-		else
-			m_entity_selected->m_desired_pitch = change;
-	}
-	for (unsigned int i : m_entities_selected) {
-		if (accumulate)
-			m_entities[i]->m_desired_pitch += change;
-		else
-			m_entities[i]->m_desired_pitch = change;
-	}
+	if (m_entity_selected)
+		m_entity_selected->SetPitchDesired(change, accumulate);
+	for (unsigned int i : m_entities_selected)
+		m_entities[i]->SetPitchDesired(change, accumulate);
 }
 
 void EntityMgr::ChangeSelectedDesiredRoll(float change, bool accumulate) {
-	if (m_entity_selected) {
-		if (accumulate)
-			m_entity_selected->m_desired_roll += change;
-		else
-			m_entity_selected->m_desired_roll = change;
-	}
-	for (unsigned int i : m_entities_selected) {
-		if (accumulate)
-			m_entities[i]->m_desired_roll += change;
-		else
-			m_entities[i]->m_desired_roll = change;
-	}
+	if (m_entity_selected)
+		m_entity_selected->SetRollDesired(change, accumulate);
+	for (unsigned int i : m_entities_selected)
+		m_entities[i]->SetRollDesired(change, accumulate);
 }
 
 void EntityMgr::StopSelectedEntities(void) {
-	m_entity_selected->m_velocity = Ogre::Vector3::ZERO;
-	m_entity_selected->m_desired_speed = 0;
-	m_entity_selected->m_desired_heading = m_entity_selected->m_heading;
+	//m_entity_selected->m_velocity = Ogre::Vector3::ZERO;
+	m_entity_selected->SetSpeedDesired(0);
+	m_entity_selected->SetHeadingDesired(m_entity_selected->GetHeading());
 	m_entity_selected->RemoveAllCommands();
 	for (unsigned int i : m_entities_selected) {
-		m_entities[i]->m_velocity = Ogre::Vector3::ZERO;
-		m_entities[i]->m_desired_speed = 0;
-		m_entities[i]->m_desired_heading = m_entities[i]->m_heading;
+		//m_entities[i]->m_velocity = Ogre::Vector3::ZERO;
+		m_entities[i]->SetSpeedDesired(0);
+		m_entities[i]->SetHeadingDesired(m_entity_selected->GetHeading());
 		m_entities[i]->RemoveAllCommands();
 	}
 }

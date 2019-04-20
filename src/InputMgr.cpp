@@ -7,6 +7,7 @@
 #include "SoundMgr.h"
 #include "GameMgr.h"
 #include "EntityMgr.h"
+#include "UIMgr.h"
 
 #include "Entity381.h"
 #include "Utils.h"
@@ -79,17 +80,20 @@ void InputMgr::Stop(void) {
 	}
 }
 
-bool InputMgr::keyPressed(const OIS::KeyEvent& key) {
+bool InputMgr::keyPressed(const OIS::KeyEvent &key) {
 	m_engine->GetGameMgr()->InjectKeyPress(key.key);
 	return true;
 }
 
-bool InputMgr::keyReleased(const OIS::KeyEvent& key) {
+bool InputMgr::keyReleased(const OIS::KeyEvent &key) {
 	m_engine->GetGameMgr()->InjectKeyRelease(key.key);
 	return true;
 }
 
-bool InputMgr::mouseMoved(const OIS::MouseEvent& me) {
+bool InputMgr::mouseMoved(const OIS::MouseEvent &me) {
+	if (m_engine->GetUIMgr()->InjectMouseMovement(me))
+		return true;
+
 	if (m_mouse->getMouseState().buttonDown(OIS::MouseButtonID::MB_Left)) {
 		m_multiselect_end[0] = float(me.state.X.abs);
 		m_multiselect_end[1] = float(me.state.Y.abs);
@@ -97,13 +101,16 @@ bool InputMgr::mouseMoved(const OIS::MouseEvent& me) {
 	return true;
 }
 
-bool InputMgr::mousePressed(const OIS::MouseEvent &me, OIS::MouseButtonID mid) {
-	if (mid == OIS::MouseButtonID::MB_Left) {
+bool InputMgr::mousePressed(const OIS::MouseEvent &me, OIS::MouseButtonID id) {
+	if (m_engine->GetUIMgr()->InjectMousePress(me, id))
+		return true;
+
+	if (id == OIS::MouseButtonID::MB_Left) {
 		m_multiselect_start[0] = float(me.state.X.abs);
 		m_multiselect_start[1] = float(me.state.Y.abs);
 	}
 
-	if (mid == OIS::MouseButtonID::MB_Left || mid == OIS::MouseButtonID::MB_Right || mid == OIS::MouseButtonID::MB_Middle) {
+	if (id == OIS::MouseButtonID::MB_Left || id == OIS::MouseButtonID::MB_Right || id == OIS::MouseButtonID::MB_Middle) {
 
 		int entity_clicked = GetEntityClickedOn(float(me.state.X.abs), float(me.state.Y.abs));
 
@@ -126,14 +133,13 @@ bool InputMgr::mousePressed(const OIS::MouseEvent &me, OIS::MouseButtonID mid) {
 			entity_clicked = GetEntityClickedOn(float(me.state.X.abs) - 1, float(me.state.Y.abs) - 1);
 
 		if (entity_clicked >= 0) {
-			if (mid == OIS::MouseButtonID::MB_Left && !m_keyboard->isKeyDown(OIS::KC_RSHIFT)) { //select clicked object
+			if (id == OIS::MouseButtonID::MB_Left && !m_keyboard->isKeyDown(OIS::KC_RSHIFT)) { //select clicked object
 				std::cout << std::endl << "SUCCESS: Now selecting entity nearest click!" << std::endl;
 				if (m_keyboard->isKeyDown(OIS::KC_LSHIFT))
 					m_engine->GetEntityMgr()->AddEntityToGroup(entity_clicked);
 				else
 					m_engine->GetEntityMgr()->SelectEntity(entity_clicked);
-			} else if (mid == OIS::MouseButtonID::MB_Right) { //intercept/follow clicked object
-
+			} else if (id == OIS::MouseButtonID::MB_Right) { //intercept/follow clicked object
 				if (m_engine->GetEntityMgr()->IsEntitySelected(m_engine->GetEntityMgr()->GetEntity(entity_clicked))) {
 					std::cout << std::endl << "FAILURE: An entity cannot intercept/follow itself!" << std::endl;
 				} else {
@@ -147,22 +153,25 @@ bool InputMgr::mousePressed(const OIS::MouseEvent &me, OIS::MouseButtonID mid) {
 							!m_keyboard->isKeyDown(OIS::KC_LSHIFT));
 					}
 				}
-			} else if (mid == OIS::MouseButtonID::MB_Middle || mid == OIS::MouseButtonID::MB_Right) { //set desired location
-				Ogre::Ray ray = m_engine->GetGfxMgr()->CreateOgreRay(float(me.state.X.abs), float(me.state.Y.abs));
-				std::pair<bool, Ogre::Real> ground_intersection = ray.intersects(Ogre::Plane(Ogre::Vector3(0.f, 1.f, 0.f), 0.f));
-				Ogre::Vector3 click_loc = ray.getPoint(ground_intersection.second);
-				click_loc.y = 0.f;
-				std::cout << std::endl << "SUCCESS: Having selected entities go to location: " << click_loc << std::endl;
-				m_engine->GetEntityMgr()->AddMoveToCommandToSelectedEntities(click_loc, !m_keyboard->isKeyDown(OIS::KC_LSHIFT));
 			}
+		} else if (id == OIS::MouseButtonID::MB_Middle || id == OIS::MouseButtonID::MB_Right) { //set desired location
+			Ogre::Ray ray = m_engine->GetGfxMgr()->CreateOgreRay(float(me.state.X.abs), float(me.state.Y.abs));
+			std::pair<bool, Ogre::Real> ground_intersection = ray.intersects(Ogre::Plane(Ogre::Vector3(0.f, 1.f, 0.f), 0.f));
+			Ogre::Vector3 click_loc = ray.getPoint(ground_intersection.second);
+			click_loc.y = 0.f;
+			std::cout << std::endl << "SUCCESS: Having selected entities go to location: " << click_loc << std::endl;
+			m_engine->GetEntityMgr()->AddMoveToCommandToSelectedEntities(click_loc, !m_keyboard->isKeyDown(OIS::KC_LSHIFT));
 		}
 	}
 
 	return true;
 }
 
-bool InputMgr::mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID mid) {
-	if (mid == OIS::MouseButtonID::MB_Left && m_keyboard->isKeyDown(OIS::KC_RSHIFT)) { //perform group selection
+bool InputMgr::mouseReleased(const OIS::MouseEvent &me, OIS::MouseButtonID id) {
+	if (m_engine->GetUIMgr()->InjectMouseRelease(me, id))
+		return true;
+
+	if (id == OIS::MouseButtonID::MB_Left && m_keyboard->isKeyDown(OIS::KC_RSHIFT)) { //perform group selection
 
 		bool primary_selected = false;
 		m_engine->GetEntityMgr()->ClearEntityGroup();
@@ -192,6 +201,14 @@ bool InputMgr::IsKeyPressed(const OIS::KeyCode &key) const {
 
 const OIS::MouseState& InputMgr::GetMouseState(void) const {
 	return m_mouse->getMouseState();
+}
+
+OIS::Keyboard* InputMgr::GetOISKeyboard(void) {
+	return m_keyboard;
+}
+
+OIS::Mouse* InputMgr::GetOISMouse(void) {
+	return m_mouse;
 }
 
 int InputMgr::GetEntityClickedOn(float x, float y) const {

@@ -1,6 +1,13 @@
 #include <vorbis/vorbisfile.h>
 
+#include "Engine.h"
+
+#include "GfxMgr.h"
+#include "InputMgr.h"
 #include "SoundMgr.h"
+#include "GameMgr.h"
+#include "EntityMgr.h"
+#include "UIMgr.h"
 
 SoundMgr::SoundMgr(Engine *engine) :
 	Mgr(engine), m_initialised(false), m_sound_on(false), m_EAX_Present(false), m_sound_device(0), m_sound_context(0), m_audio_path(""),

@@ -12,7 +12,7 @@
 
 class Entity381;
 
-class InputMgr: public Mgr, public OIS::KeyListener, public OIS::MouseListener {
+class InputMgr: public Mgr, public OIS::KeyListener, public OIS::MouseListener, public OgreBites::SdkTrayListener {
 
 public:
 	InputMgr(Engine *engine);
@@ -24,17 +24,19 @@ public:
 	virtual void Tick(float dt) override final;
 	virtual void Stop(void) override final;
 
-	virtual bool keyPressed(const OIS::KeyEvent& key) override final;
-	virtual bool keyReleased(const OIS::KeyEvent& key) override final;
+	virtual bool keyPressed(const OIS::KeyEvent& key) override;
+	virtual bool keyReleased(const OIS::KeyEvent& key) override;
 
-	virtual bool mouseMoved(const OIS::MouseEvent& me) override final;
-	virtual bool mousePressed(const OIS::MouseEvent& me, OIS::MouseButtonID id) override final;
-	virtual bool mouseReleased(const OIS::MouseEvent& me, OIS::MouseButtonID id) override final;
+	virtual bool mouseMoved(const OIS::MouseEvent &me) override;
+	virtual bool mousePressed(const OIS::MouseEvent &me, OIS::MouseButtonID id) override;
+	virtual bool mouseReleased(const OIS::MouseEvent &me, OIS::MouseButtonID id) override;
 
 public:
 	bool IsKeyPressed(const OIS::KeyCode &key) const;
 
 	const OIS::MouseState& GetMouseState(void) const;
+	OIS::Keyboard* GetOISKeyboard(void);
+	OIS::Mouse* GetOISMouse(void);
 
 private:
 	int GetEntityClickedOn(float x, float y) const;

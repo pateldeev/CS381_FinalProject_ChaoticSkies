@@ -28,21 +28,21 @@ void Engine::Init(void) {
 	m_sound_mgr = new SoundMgr(this);
 	m_game_mgr = new GameMgr(this);
 	m_entity_mgr = new EntityMgr(this);
-	//m_UI_mgr = new UIMgr(this);
+	m_UI_mgr = new UIMgr(this);
 
 	m_gfx_mgr->Init();
 	m_input_mgr->Init();
 	m_sound_mgr->Init();
 	m_game_mgr->Init();
 	m_entity_mgr->Init();
-	//m_UI_mgr->Init();
+	m_UI_mgr->Init();
 
 	m_gfx_mgr->LoadLevel();
 	m_input_mgr->LoadLevel();
 	m_sound_mgr->LoadLevel();
 	m_game_mgr->LoadLevel();
 	m_entity_mgr->LoadLevel();
-	//m_UI_mgr->LoadLevel();
+	m_UI_mgr->LoadLevel();
 
 	m_running = true;
 }
@@ -69,7 +69,7 @@ void Engine::Cleanup(void) {
 	m_sound_mgr->Stop();
 	m_input_mgr->Stop();
 	m_gfx_mgr->Stop();
-	//m_UI_mgr->Stop();
+	m_UI_mgr->Stop();
 }
 
 GfxMgr* Engine::GetGfxMgr(void) {
@@ -134,6 +134,6 @@ void Engine::TickAll(float dt) {
 	m_sound_mgr->Tick(dt);
 	m_game_mgr->Tick(dt);
 	m_entity_mgr->Tick(dt);
-	//m_UI_mgr->Tick(dt);
+	m_UI_mgr->Tick(dt);
 }
 

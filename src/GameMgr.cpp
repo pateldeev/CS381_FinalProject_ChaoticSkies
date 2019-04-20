@@ -1,10 +1,13 @@
 #include <OGRE/OgreMeshManager.h>
 
+#include "Engine.h"
+
 #include "GfxMgr.h"
 #include "InputMgr.h"
 #include "SoundMgr.h"
 #include "GameMgr.h"
 #include "EntityMgr.h"
+#include "UIMgr.h"
 
 #include "Entity381.h"
 
@@ -150,9 +153,13 @@ void GameMgr::MakeEntities(void) {
 	for (unsigned int i = 0; i < 2; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(i * change_x_per_object, 0, -100.f));
 
-	m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(18, 50, -50));
-
+	m_camera_following = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(18, 50, -50));
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1); //sets selection
+
+	Ogre::ParticleSystem* fireworks = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Fireworks");
+	Ogre::SceneNode* fireworks_node = m_camera_following->GetOgreSceneNode()->createChildSceneNode("fireworks");
+	fireworks_node->attachObject(fireworks);
+
 }
 
 void GameMgr::UpdateSelectedDesiredAtributes(float dt) {
@@ -162,6 +169,7 @@ void GameMgr::UpdateSelectedDesiredAtributes(float dt) {
 		if (next_update_time <= 0.f) {
 			const static float DELTA_DESIRED_SPEED = 10.0f;
 			const static float DELTA_DESIRED_ANGLE = 10.0f;
+			const static float DELTA_DESIRED_ROTATION = 5.0f;
 
 			if (m_desired_control == OIS::KC_I)
 				m_engine->GetEntityMgr()->ChangeSelectedDesiredSpeed(DELTA_DESIRED_SPEED);
@@ -172,13 +180,13 @@ void GameMgr::UpdateSelectedDesiredAtributes(float dt) {
 			else if (m_desired_control == OIS::KC_L)
 				m_engine->GetEntityMgr()->ChangeSelectedDesiredHeading(-DELTA_DESIRED_ANGLE);
 			else if (m_desired_control == OIS::KC_UP)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredPitch(DELTA_DESIRED_ANGLE);
+				m_engine->GetEntityMgr()->ChangeSelectedDesiredPitch(DELTA_DESIRED_ROTATION);
 			else if (m_desired_control == OIS::KC_DOWN)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredPitch(-DELTA_DESIRED_ANGLE);
+				m_engine->GetEntityMgr()->ChangeSelectedDesiredPitch(-DELTA_DESIRED_ROTATION);
 			else if (m_desired_control == OIS::KC_LEFT)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredRoll(DELTA_DESIRED_ANGLE);
+				m_engine->GetEntityMgr()->ChangeSelectedDesiredRoll(DELTA_DESIRED_ROTATION);
 			else if (m_desired_control == OIS::KC_RIGHT)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredRoll(-DELTA_DESIRED_ANGLE);
+				m_engine->GetEntityMgr()->ChangeSelectedDesiredRoll(-DELTA_DESIRED_ROTATION);
 			next_update_time = 0.2;
 			return;
 		}
@@ -237,14 +245,14 @@ void GameMgr::UpdateCameraToFollowEntity(void) {
 	m_camera_node->setPosition(entity_loc);
 	//m_camera_node->translate(0.f, 0.f, 1.5 * std::max(entity_size.x, entity_size.z), Ogre::Node::TransformSpace::TS_LOCAL);
 #else
-	m_camera_node->setPosition(m_camera_following->m_scene_node->_getDerivedPosition());
+	m_camera_node->setPosition(m_camera_following->GetOgreSceneNode()->_getDerivedPosition());
 	m_camera_node->translate(Ogre::Vector3(-2, 4, 0), Ogre::Node::TransformSpace::TS_LOCAL);
 #endif
 
 	m_camera_node->resetOrientation();
-	m_camera_node->yaw(Ogre::Degree(FixAngle(m_camera_following->m_heading - 90)));
-	m_camera_node->pitch(Ogre::Degree(m_camera_following->m_pitch));
-	m_camera_node->roll(Ogre::Degree(m_camera_following->m_roll));
+	m_camera_node->yaw(Ogre::Degree(FixAngle(m_camera_following->GetHeading() - 90)));
+	m_camera_node->pitch(Ogre::Degree(m_camera_following->GetPitch()));
+	m_camera_node->roll(Ogre::Degree(m_camera_following->GetRoll()));
 
 }
 

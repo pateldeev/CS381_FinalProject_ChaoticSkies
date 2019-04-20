@@ -35,10 +35,6 @@ void Entity381::Tick(float dt) {
 	m_aspect_ai->DrawBoundingBox();
 }
 
-std::string Entity381::GetName(void) const {
-	return m_name;
-}
-
 void Entity381::MakeSelectionSound(void) {
 	m_engine->GetSoundMgr()->StopAllAudio();
 	m_engine->GetSoundMgr()->PlayAudio(m_audio_id, true);
@@ -55,6 +51,107 @@ void Entity381::AddCommand(Command *c, bool remove_past) {
 		m_aspect_ai->AddCommand(c);
 }
 
-void Entity381::FixMeshOrientation(float &yaw, float &pitch, float &roll) {
-
+void Entity381::LoadAudio(void) {
+	m_engine->GetSoundMgr()->LoadAudio(m_selection_sound, &m_audio_id, false);
 }
+
+void Entity381::FixMeshOrientation(float &yaw, float &pitch, float &roll) {
+}
+
+void Entity381::ShowBoundingBox(void) const {
+	m_scene_node->showBoundingBox(true);
+}
+
+void Entity381::TurnOffBoundingBox(void) const {
+	m_scene_node->showBoundingBox(false);
+}
+
+Ogre::Vector3 Entity381::GetPosition(void) const {
+	return m_position;
+}
+
+Ogre::Vector3 Entity381::GetVelocity(void) const {
+	return m_velocity;
+}
+
+std::string Entity381::GetName(void) const {
+	return m_name;
+}
+
+Ogre::SceneNode* Entity381::GetOgreSceneNode(void) {
+	return m_scene_node;
+}
+
+const Ogre::SceneNode* Entity381::GetOgreSceneNode(void) const {
+	return m_scene_node;
+}
+
+float Entity381::GetSpeed(void) const {
+	return m_speed;
+}
+
+float Entity381::GetSpeedDesired(void) const {
+	return m_desired_speed;
+}
+
+void Entity381::SetSpeedDesired(float speed, bool accumulate) {
+	if (accumulate)
+		m_desired_speed += speed;
+	else
+		m_desired_speed = speed;
+	m_desired_speed = Clamp(m_speed_min, m_speed_max, m_desired_speed);
+}
+
+float Entity381::GetHeading(void) const {
+	return m_heading;
+}
+
+float Entity381::GetHeadingDesired(void) const {
+	return m_desired_heading;
+}
+
+void Entity381::SetHeadingDesired(float heading, bool accumulate) {
+	if (accumulate)
+		m_desired_heading += heading;
+	else
+		m_desired_heading = heading;
+}
+
+float Entity381::GetPitch(void) const {
+	return m_pitch;
+}
+
+float Entity381::GetPitchDesired(void) const {
+	return m_desired_pitch;
+}
+
+void Entity381::SetPitchDesired(float pitch, bool accumulate) {
+	if (accumulate)
+		m_desired_pitch += pitch;
+	else
+		m_desired_pitch = pitch;
+}
+
+float Entity381::GetRoll(void) const {
+	return m_roll;
+}
+
+float Entity381::GetRollDesired(void) const {
+	return m_desired_roll;
+}
+
+void Entity381::SetRollDesired(float roll, bool accumulate) {
+	if (accumulate)
+		m_desired_roll += roll;
+	else
+		m_desired_roll = roll;
+}
+
+float Entity381::GetSpeedMax(void) const {
+	return m_speed_max;
+}
+
+const AspectUnitAI* Entity381::GetAIAspect(void) const {
+	return m_aspect_ai;
+}
+

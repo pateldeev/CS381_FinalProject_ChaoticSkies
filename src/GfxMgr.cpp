@@ -15,6 +15,7 @@
 #include "SoundMgr.h"
 #include "GameMgr.h"
 #include "EntityMgr.h"
+#include "UIMgr.h"
 
 GfxMgr::GfxMgr(Engine *engine) :
 	Mgr(engine), m_root(nullptr), m_window(nullptr), m_scene_mgr(nullptr), m_camera(nullptr) {
@@ -58,9 +59,6 @@ void GfxMgr::Init(void) {
 
 	m_window = m_root->initialise(true, "CS381_Final_Project");
 
-	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
-	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-
 	m_scene_mgr = m_root->createSceneManager(Ogre::ST_GENERIC);
 
 	m_camera = m_scene_mgr->createCamera("camera");
@@ -77,6 +75,8 @@ void GfxMgr::Init(void) {
 }
 
 void GfxMgr::LoadLevel(void) {
+	Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
+	Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 	windowResized(m_window);
 }
 
@@ -89,7 +89,7 @@ void GfxMgr::Tick(float dt) {
 	Ogre::WindowEventUtilities::messagePump();
 }
 
-void GfxMgr::Stop() {
+void GfxMgr::Stop(void) {
 	m_root->shutdown();
 }
 

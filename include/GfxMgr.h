@@ -4,9 +4,12 @@
 #include <OGRE/OgreRoot.h>
 #include <OGRE/OgreWindowEventUtilities.h>
 
+#include <OGRE/SdkTrays.h>
+#include <OGRE/Overlay/OgreOverlaySystem.h>
+
 #include "Mgr.h"
 
-class GfxMgr: public Mgr, public Ogre::WindowEventListener, public Ogre::FrameListener {
+class GfxMgr: public Mgr, public Ogre::WindowEventListener {
 public:
 	GfxMgr(Engine *engine);
 	virtual ~GfxMgr(void);
