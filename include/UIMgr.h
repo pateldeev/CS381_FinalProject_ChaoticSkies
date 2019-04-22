@@ -38,18 +38,15 @@ public:
 
 private:
 	virtual void buttonHit(OgreBites::Button *b) override final;
-	virtual void itemSelected(OgreBites::SelectMenu *m) override final;
 
 private:
 	OgreBites::InputContext m_input_context;
 	OgreBites::SdkTrayManager* m_tray_mgr;
 	Ogre::OverlaySystem* m_overlay_system;
 
+	std::string m_explosion_sound;
+
 	OgreBites::ProgressBar* m_health_bar;
-	OgreBites::Label* m_label;
-	OgreBites::Label* m_info_label;
-	OgreBites::Label* m_info_label2;
-	OgreBites::Label* m_info_label3;
 };
 
 #endif

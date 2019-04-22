@@ -8,8 +8,7 @@
 #include "UIMgr.h"
 
 UIMgr::UIMgr(Engine* engine) :
-	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_health_bar(nullptr), m_label(nullptr), m_info_label(nullptr),
-	m_info_label2(nullptr), m_info_label3(nullptr) {
+	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_health_bar(nullptr) {
 }
 
 UIMgr::~UIMgr(void) {
@@ -35,20 +34,28 @@ void UIMgr::LoadLevel(void) {
 	m_tray_mgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
 	m_tray_mgr->showLogo(OgreBites::TL_BOTTOMRIGHT);
 	m_tray_mgr->getCursorImage()->hide();
+
+	m_engine->GetSoundMgr()->LoadAudio("assets/sounds/Explosion.ogg", m_explosion_sound);
 }
 
 void UIMgr::Tick(float dt) {
 	m_tray_mgr->refreshCursor();
 
 	float percentage = GetHealthPercentage();
-	if (percentage <= 0)
+	if (percentage <= 0) {
+		m_engine->GetSoundMgr()->PlayAudio(m_explosion_sound);
 		SetHealthBarPercentage(100);
-	else
-		SetHealthBarPercentage(percentage - 0.1 * dt);
 
-	//m_info_label->setCaption("Type: Destroyer");
-	//m_info_label2->setCaption("Heading: ");
-	//m_info_label3->setCaption("Speed: ");
+		static int x = 0;
+		if (++x == 1) {
+			Ogre::ParticleSystem* smoke = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Smoke");
+			Ogre::SceneNode* smoke_node = m_engine->GetEntityMgr()->GetMainSelected()->GetOgreSceneNode()->createChildSceneNode("smoke");
+			smoke_node->attachObject(smoke);
+		}
+
+	} else {
+		SetHealthBarPercentage(percentage - 0.1 * dt);
+	}
 }
 
 void UIMgr::Stop(void) {
@@ -77,11 +84,9 @@ void UIMgr::SetHealthBarPercentage(float percentage) {
 void UIMgr::buttonHit(OgreBites::Button *b) {
 	if (b->getName() == "Credits") {
 		std::cout << "Showing Credits" << std::endl;
+		m_tray_mgr->showOkDialog("Credits", "This game was created by Deev Patel and Cody Ryan for CS 381.");
 	} else if (b->getName() == "Exit") {
 		std::cout << "Exiting Game!" << std::endl;
 		m_engine->StopRunning();
 	}
-}
-
-void UIMgr::itemSelected(OgreBites::SelectMenu *m) {
 }

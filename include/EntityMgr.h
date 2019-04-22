@@ -39,8 +39,15 @@ public:
 
 	void ChangeSelectedDesiredSpeed(float change, bool accumulate = true);
 	void ChangeSelectedDesiredHeading(float change, bool accumulate = true);
-	void ChangeSelectedDesiredPitch(float change, bool accumulate = true);
-	void ChangeSelectedDesiredRoll(float change, bool accumulate = true);
+
+	void PitchSelectedUp(void);
+	void PitchSelectedDown(void);
+	void StopSelectedPitch(void);
+
+	void RollSelectedLeft(void);
+	void RollSelectedRight(void);
+	void StopSelectedRoll(void);
+
 	void StopSelectedEntities(void);
 
 	void AddMoveToCommandToSelectedEntities(const Ogre::Vector3 &target, bool remove_past_commands = false);

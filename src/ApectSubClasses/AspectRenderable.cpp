@@ -10,14 +10,16 @@ AspectRenderable::~AspectRenderable(void) {
 }
 
 void AspectRenderable::Tick(float dt) {
-	m_entity->m_scene_node->setPosition(m_entity->m_position);
+	m_entity->GetOgreSceneNode()->setPosition(m_entity->GetPosition());
 
-	float yaw = m_entity->m_heading;
-	float pitch = m_entity->m_pitch;
-	float roll = m_entity->m_roll;
-	m_entity->FixMeshOrientation(yaw, pitch, roll);
-	m_entity->m_scene_node->resetOrientation();
-	m_entity->m_scene_node->yaw(Ogre::Degree(yaw));
-	m_entity->m_scene_node->pitch(Ogre::Degree(pitch));
-	m_entity->m_scene_node->roll(Ogre::Degree(roll));
+	float yaw = m_entity->GetHeading();
+	float pitch = m_entity->GetPitch();
+	float roll = m_entity->GetRoll();
+	m_entity->GetMeshOrientationsFixed(yaw, pitch, roll);
+
+	Ogre::SceneNode* n = m_entity->GetOgreSceneNode();
+	n->resetOrientation();
+	n->yaw(Ogre::Degree(yaw));
+	n->pitch(Ogre::Degree(pitch));
+	n->roll(Ogre::Degree(roll));
 }

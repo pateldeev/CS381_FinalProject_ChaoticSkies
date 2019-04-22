@@ -161,29 +161,60 @@ void EntityMgr::ChangeSelectedDesiredHeading(float change, bool accumulate) {
 		m_entities[i]->SetHeadingDesired(change, accumulate);
 }
 
-void EntityMgr::ChangeSelectedDesiredPitch(float change, bool accumulate) {
+void EntityMgr::PitchSelectedUp(void) {
 	if (m_entity_selected)
-		m_entity_selected->SetPitchDesired(change, accumulate);
+		m_entity_selected->PitchUp();
 	for (unsigned int i : m_entities_selected)
-		m_entities[i]->SetPitchDesired(change, accumulate);
+		m_entities[i]->PitchUp();
 }
 
-void EntityMgr::ChangeSelectedDesiredRoll(float change, bool accumulate) {
+void EntityMgr::PitchSelectedDown(void) {
 	if (m_entity_selected)
-		m_entity_selected->SetRollDesired(change, accumulate);
+		m_entity_selected->PitchDown();
 	for (unsigned int i : m_entities_selected)
-		m_entities[i]->SetRollDesired(change, accumulate);
+		m_entities[i]->PitchDown();
+}
+
+void EntityMgr::StopSelectedPitch(void) {
+	if (m_entity_selected)
+		m_entity_selected->PitchStop();
+	for (unsigned int i : m_entities_selected)
+		m_entities[i]->PitchStop();
+}
+
+void EntityMgr::RollSelectedLeft(void) {
+	if (m_entity_selected)
+		m_entity_selected->RollLeft();
+	for (unsigned int i : m_entities_selected)
+		m_entities[i]->RollLeft();
+}
+
+void EntityMgr::RollSelectedRight(void) {
+	if (m_entity_selected)
+		m_entity_selected->RollRight();
+	for (unsigned int i : m_entities_selected)
+		m_entities[i]->RollRight();
+}
+
+void EntityMgr::StopSelectedRoll(void) {
+	if (m_entity_selected)
+		m_entity_selected->RollStop();
+	for (unsigned int i : m_entities_selected)
+		m_entities[i]->RollStop();
 }
 
 void EntityMgr::StopSelectedEntities(void) {
 	//m_entity_selected->m_velocity = Ogre::Vector3::ZERO;
 	m_entity_selected->SetSpeedDesired(0);
 	m_entity_selected->SetHeadingDesired(m_entity_selected->GetHeading());
+	m_entity_selected->PitchStop();
+	m_entity_selected->RollStop();
 	m_entity_selected->RemoveAllCommands();
 	for (unsigned int i : m_entities_selected) {
-		//m_entities[i]->m_velocity = Ogre::Vector3::ZERO;
 		m_entities[i]->SetSpeedDesired(0);
 		m_entities[i]->SetHeadingDesired(m_entity_selected->GetHeading());
+		m_entities[i]->PitchStop();
+		m_entities[i]->RollStop();
 		m_entities[i]->RemoveAllCommands();
 	}
 }

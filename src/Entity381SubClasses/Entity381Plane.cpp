@@ -2,23 +2,21 @@
 
 #include "Utils.h"
 
-Entity381Plane::Entity381Plane(Engine *engine, const std::string &meshfilename, int identity, const Ogre::Vector3 &pos) :
-	Entity381(engine, meshfilename, identity, pos, Ogre::Quaternion(-0.7071068, 0.f, 0.7071068, 0.f)) {
-	this->m_speed_min = 0;
-	this->m_speed_max = 250.0f; //meters per second...
-	this->m_acceleration = 30.0f; // slow
-	this->m_turn_rate = 10.f;//45.0f; //2 degrees per second
+Entity381Plane::Entity381Plane(Engine *engine, const std::string &mesh, int id, const Ogre::Vector3 &pos) :
+	Entity381(engine, mesh, id, true, "assets/sounds/Selection_Airplane.ogg", pos, Ogre::Quaternion(-0.7071068, 0.f, 0.7071068, 0.f)) {
 
-	m_selection_sound = "assets/sounds/Selection_Banshee.ogg";
+	m_speed_max = 250.0f;
+	m_acceleration = 30.0f;
+	m_turn_rate = 10.f;
 
-	m_aspects.push_back(new AspectPhysics3D(this));
-
+	m_pitch_rate_max = 21.f;
+	m_roll_rate_max = 17.f;
 }
 
 Entity381Plane::~Entity381Plane(void) {
 }
 
-void Entity381Plane::FixMeshOrientation(float &yaw, float &pitch, float &roll) {
+void Entity381Plane::GetMeshOrientationsFixed(float &yaw, float &pitch, float &roll) const {
 	yaw += 90;
 	yaw = FixAngle(yaw);
 	pitch = -pitch;

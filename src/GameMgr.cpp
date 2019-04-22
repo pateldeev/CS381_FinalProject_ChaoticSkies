@@ -53,8 +53,7 @@ void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
 		return;
 	}
 
-	if (key == OIS::KC_UP || key == OIS::KC_DOWN || key == OIS::KC_LEFT || key == OIS::KC_RIGHT || key == OIS::KC_I || key == OIS::KC_K
-		|| key == OIS::KC_J || key == OIS::KC_L) {
+	if (key == OIS::KC_I || key == OIS::KC_K || key == OIS::KC_J || key == OIS::KC_L) {
 		m_desired_control = key;
 		return;
 	} else if (key == OIS::KC_SPACE) {
@@ -77,6 +76,15 @@ void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
 			m_engine->GetEntityMgr()->SelectNextEntity();
 		return;
 	}
+
+	if (key == OIS::KC_UP)
+		m_engine->GetEntityMgr()->PitchSelectedUp();
+	else if (key == OIS::KC_DOWN)
+		m_engine->GetEntityMgr()->PitchSelectedDown();
+	else if (key == OIS::KC_LEFT)
+		m_engine->GetEntityMgr()->RollSelectedLeft();
+	else if (key == OIS::KC_RIGHT)
+		m_engine->GetEntityMgr()->RollSelectedRight();
 }
 
 void GameMgr::InjectKeyRelease(const OIS::KeyCode &key) {
@@ -85,6 +93,15 @@ void GameMgr::InjectKeyRelease(const OIS::KeyCode &key) {
 
 	if (key == m_camera_manual_control)
 		m_camera_manual_control = OIS::KC_UNASSIGNED;
+
+	if (key == OIS::KC_UP && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_DOWN))
+		m_engine->GetEntityMgr()->StopSelectedPitch();
+	else if (key == OIS::KC_DOWN && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_UP))
+		m_engine->GetEntityMgr()->StopSelectedPitch();
+	else if (key == OIS::KC_LEFT && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_RIGHT))
+		m_engine->GetEntityMgr()->StopSelectedRoll();
+	else if (key == OIS::KC_RIGHT && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LEFT))
+		m_engine->GetEntityMgr()->StopSelectedRoll();
 }
 
 void GameMgr::MakeCamera(void) {
@@ -148,17 +165,18 @@ void GameMgr::MakeEntities(void) {
 	for (unsigned int i = 0; i < 4; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::AlienType, Ogre::Vector3(i * change_x_per_object, 0, -250.f));
 
-	//create 2 banshee
+	//create 2 banshees
 	change_x_per_object = 150.f;
 	for (unsigned int i = 0; i < 2; ++i)
-		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(i * change_x_per_object, 0, -100.f));
+		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(i * change_x_per_object, 100, -100.f));
 
+	//add main plane
 	m_camera_following = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(18, 50, -50));
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1); //sets selection
 
-	Ogre::ParticleSystem* fireworks = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Fireworks");
-	Ogre::SceneNode* fireworks_node = m_camera_following->GetOgreSceneNode()->createChildSceneNode("fireworks");
-	fireworks_node->attachObject(fireworks);
+	//Ogre::ParticleSystem* fireworks = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Fireworks");
+	//Ogre::SceneNode* fireworks_node = m_camera_following->GetOgreSceneNode()->createChildSceneNode("fireworks");
+	//fireworks_node->attachObject(fireworks);
 
 }
 
@@ -168,25 +186,16 @@ void GameMgr::UpdateSelectedDesiredAtributes(float dt) {
 	if (m_desired_control != OIS::KC_UNASSIGNED) {
 		if (next_update_time <= 0.f) {
 			const static float DELTA_DESIRED_SPEED = 10.0f;
-			const static float DELTA_DESIRED_ANGLE = 10.0f;
-			const static float DELTA_DESIRED_ROTATION = 5.0f;
+			const static float DELTA_DESIRED_HEADING = 10.0f;
 
 			if (m_desired_control == OIS::KC_I)
 				m_engine->GetEntityMgr()->ChangeSelectedDesiredSpeed(DELTA_DESIRED_SPEED);
 			else if (m_desired_control == OIS::KC_K)
 				m_engine->GetEntityMgr()->ChangeSelectedDesiredSpeed(-DELTA_DESIRED_SPEED);
 			else if (m_desired_control == OIS::KC_J)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredHeading(DELTA_DESIRED_ANGLE);
+				m_engine->GetEntityMgr()->ChangeSelectedDesiredHeading(DELTA_DESIRED_HEADING);
 			else if (m_desired_control == OIS::KC_L)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredHeading(-DELTA_DESIRED_ANGLE);
-			else if (m_desired_control == OIS::KC_UP)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredPitch(DELTA_DESIRED_ROTATION);
-			else if (m_desired_control == OIS::KC_DOWN)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredPitch(-DELTA_DESIRED_ROTATION);
-			else if (m_desired_control == OIS::KC_LEFT)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredRoll(DELTA_DESIRED_ROTATION);
-			else if (m_desired_control == OIS::KC_RIGHT)
-				m_engine->GetEntityMgr()->ChangeSelectedDesiredRoll(-DELTA_DESIRED_ROTATION);
+				m_engine->GetEntityMgr()->ChangeSelectedDesiredHeading(-DELTA_DESIRED_HEADING);
 			next_update_time = 0.2;
 			return;
 		}

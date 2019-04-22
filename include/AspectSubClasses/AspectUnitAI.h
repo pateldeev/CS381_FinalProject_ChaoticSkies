@@ -5,7 +5,7 @@
 
 class AspectUnitAI: public Aspect {
 public:
-	AspectUnitAI(Entity381 *ent);
+	AspectUnitAI(Entity381 *entity);
 	~AspectUnitAI(void);
 
 public:

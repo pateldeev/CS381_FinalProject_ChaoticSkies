@@ -10,34 +10,26 @@
 #include "Aspect.h"
 
 class Entity381 {
-public:
-	Entity381(Engine *engine, const std::string &meshfilename, int identity, const Ogre::Vector3 &pos = Ogre::Vector3::ZERO,
-		const Ogre::Quaternion &rotate = Ogre::Quaternion::IDENTITY);
+protected:
 	virtual ~Entity381(void);
 
 public:
 	void Tick(float dt);
 
+	void LoadAudio(void);
 	void MakeSelectionSound(void);
 
 	void RemoveAllCommands(void);
 	void AddCommand(Command *c, bool remove_past = false);
 
-	void LoadAudio(void);
-
-	virtual void FixMeshOrientation(float &yaw, float &pitch, float &roll);
+	virtual void GetMeshOrientationsFixed(float &yaw, float &pitch, float &roll) const;
 
 	void ShowBoundingBox(void) const;
-	void TurnOffBoundingBox(void) const;
+	void HideBoundingBox(void) const;
 
 public:
+	int GetId(void) const;
 	std::string GetName(void) const;
-
-	Ogre::SceneNode* GetOgreSceneNode(void);
-	const Ogre::SceneNode* GetOgreSceneNode(void) const;
-
-	Ogre::Vector3 GetPosition(void) const;
-	Ogre::Vector3 GetVelocity(void) const;
 
 	float GetSpeed(void) const;
 	float GetSpeedDesired(void) const;
@@ -48,57 +40,72 @@ public:
 	void SetHeadingDesired(float heading, bool accumulate = false);
 
 	float GetPitch(void) const;
-	float GetPitchDesired(void) const;
-	void SetPitchDesired(float pitch, bool accumulate = false);
+	void PitchUp(void);
+	void PitchDown(void);
+	void PitchStop(void);
 
 	float GetRoll(void) const;
-	float GetRollDesired(void) const;
-	void SetRollDesired(float roll, bool accumulate = false);
+	void RollLeft(void);
+	void RollRight(void);
+	void RollStop(void);
 
-	float GetSpeedMax(void) const;
+	Ogre::SceneNode* GetOgreSceneNode(void);
+	const Ogre::SceneNode* GetOgreSceneNode(void) const;
+
+	Ogre::Vector3 GetPosition(void) const;
+	Ogre::Vector3 GetVelocity(void) const;
 
 	const AspectUnitAI* GetAIAspect(void) const;
 
+	float GetSpeedMax(void) const;
+	float GetSpeedMin(void) const;
+
 protected:
+	Entity381(Engine *engine, const std::string &mesh, int id, bool apply_3Dphysics = false, const std::string &selection_sound_file = "",
+		const Ogre::Vector3 &pos = Ogre::Vector3::ZERO, const Ogre::Quaternion &rotate = Ogre::Quaternion::IDENTITY);
+
+protected:
+	float m_speed_min;
+	float m_speed_max;
+	float m_acceleration;
+
+	float m_turn_rate;
+
+	float m_pitch_rate_max;
+	float m_roll_rate_max;
+private:
 	Engine *m_engine;
 
 	int m_id;
 	std::string m_name;
+
 	std::string m_mesh_file;
 
-	Ogre::SceneNode* m_scene_node;
-	Ogre::Entity* m_ogre_entity;
-
-	float m_acceleration;
-	float m_turn_rate;
-	float m_speed_min;
-	float m_speed_max;
-
 	std::string m_selection_sound;
-	unsigned int m_audio_id;
+
+	float m_speed;
+	float m_speed_desired;
+
+	float m_heading;
+	float m_heading_desired;
+
+	float m_pitch;
+	float m_pitch_rate_current;
+	float m_roll;
+	float m_roll_rate_current;
+
+	Ogre::Entity* m_ogre_entity;
+	Ogre::SceneNode* m_scene_node;
 
 	Ogre::Vector3 m_position;
 	Ogre::Vector3 m_velocity;
 
-	float m_desired_heading;
-	float m_desired_speed;
-	float m_desired_pitch;
-	float m_desired_roll;
-
-	float m_heading;
-	float m_speed;
-	float m_pitch;
-	float m_roll;
-
-	AspectUnitAI *m_aspect_ai;
-
+	AspectUnitAI *m_AI_aspect;
 	std::vector<Aspect*> m_aspects;
 
-	friend class Aspect;
+private:
 	friend class AspectPhysics2D;
 	friend class AspectPhysics3D;
-	friend class AspectRenderable;
-	friend class AspectUnitAI;
 };
 
 enum Entity381Types {

@@ -132,19 +132,22 @@ void SoundMgr::Stop(void) {
 	}
 }
 
-void SoundMgr::SetAudioPath(const char* path) {
-	m_audio_path = std::string(path);
+void SoundMgr::SetAudioPath(const std::string &path) {
+	m_audio_path = path;
 }
 
-// Attempts to aquire an empty audio source and assign it back to the caller
+// Attempts to aquire an empty audio source and assign it given name
 // via AudioSourceID. This will lock the source
 /*****************************************************************************/
-bool SoundMgr::LoadAudio(const std::string &file_name, unsigned int* audioId, bool loop) {
+bool SoundMgr::LoadAudio(const std::string &file_name, const std::string &audio_name, bool loop) {
 	if (file_name.empty() || file_name.length() > MAX_FILENAME_LENGTH)
 		return false;
 
 	if (m_audio_sources_in_use_count == MAX_AUDIO_SOURCES)
 		return false;   // out of Audio Source slots!
+
+	if (!m_sources.insert(std::make_pair(audio_name, 0)).second)
+		return false; //audio by name already exists
 
 	int bufferID = -1;   // Identity of the Sound Buffer to use
 	int sourceID = -1;   // Identity of the Source Buffer to use
@@ -163,13 +166,12 @@ bool SoundMgr::LoadAudio(const std::string &file_name, unsigned int* audioId, bo
 	// If you are here, the sound the requester wants to reference is in a buffer.
 	// Now, we need to find a free Audio Source slot in the sound system
 	sourceID = 0;
-
 	while (m_audio_source_in_use[sourceID])
 		++sourceID;
 
 	// When you are here, 'mSourceID' now represents a free Audio Source slot
 	// The free slot may not be at the end of the array but in the middle of it.
-	*audioId = sourceID;  // return the Audio Source ID to the caller
+	m_sources[audio_name] = sourceID;  // return the Audio Source ID to the caller
 	m_audio_source_in_use[sourceID] = true; // mark this Source slot as in use
 	++m_audio_sources_in_use_count;    // bump the 'in use' counter
 
@@ -186,16 +188,25 @@ bool SoundMgr::LoadAudio(const std::string &file_name, unsigned int* audioId, bo
 	return true;
 }
 
-bool SoundMgr::ReleaseAudio(unsigned int audioID) {
-	if (audioID >= MAX_AUDIO_SOURCES)
-		return false;
+bool SoundMgr::ReleaseAudio(const std::string &audio_name) {
+	if (m_sources.find(audio_name) == m_sources.end())
+		return false; //no audio with given name
+	unsigned int audioID = m_sources[audio_name];
+
 	alSourceStop(m_audio_sources[audioID]);
 	m_audio_source_in_use[audioID] = false;
-	m_audio_sources_in_use_count--;
+	--m_audio_sources_in_use_count;
+
+	m_sources.erase(audio_name);
+
 	return true;
 }
 
-bool SoundMgr::PlayAudio(unsigned int audioID, bool forceRestart) {
+bool SoundMgr::PlayAudio(const std::string &audio_name, bool forceRestart) {
+	if (m_sources.find(audio_name) == m_sources.end())
+		return false; //no audio with given name
+	unsigned int audioID = m_sources[audio_name];
+
 	// Make sure the audio source ident is valid and usable
 	if (audioID >= MAX_AUDIO_SOURCES || !m_audio_source_in_use[audioID])
 		return false;
@@ -209,7 +220,7 @@ bool SoundMgr::PlayAudio(unsigned int audioID, bool forceRestart) {
 
 	if (sourceAudioState == AL_PLAYING) {
 		if (forceRestart)
-			StopAudio(audioID);
+			StopAudio(audio_name);
 		else
 			return false; // Not forced, so we don't do anything
 	}
@@ -221,7 +232,11 @@ bool SoundMgr::PlayAudio(unsigned int audioID, bool forceRestart) {
 	return true;
 }
 
-bool SoundMgr::StopAudio(unsigned int audioID) {
+bool SoundMgr::StopAudio(const std::string &audio_name) {
+	if (m_sources.find(audio_name) == m_sources.end())
+		return false; //no audio with given name
+	unsigned int audioID = m_sources[audio_name];
+
 	// Make sure the audio source ident is valid and usable
 	if (audioID >= MAX_AUDIO_SOURCES || !m_audio_source_in_use[audioID])
 		return false;
@@ -242,8 +257,8 @@ bool SoundMgr::StopAllAudio(void) {
 
 	alGetError();
 
-	for (unsigned int i = 0; i < m_audio_sources_in_use_count; ++i)
-		StopAudio(i);
+	for (const std::pair<std::string, unsigned int> &s : m_sources)
+		StopAudio(s.first);
 
 	if (CheckALError("stopAllAudio::alSourceStop "))
 		return false;
@@ -251,7 +266,11 @@ bool SoundMgr::StopAllAudio(void) {
 	return true;
 }
 
-bool SoundMgr::PauseAudio(unsigned int audioID) {
+bool SoundMgr::PauseAudio(const std::string &audio_name) {
+	if (m_sources.find(audio_name) == m_sources.end())
+		return false; //no audio with given name
+	unsigned int audioID = m_sources[audio_name];
+
 	// Make sure the audio source ident is valid and usable
 	if (audioID >= MAX_AUDIO_SOURCES || !m_audio_source_in_use[audioID])
 		return false;
@@ -281,7 +300,11 @@ bool SoundMgr::PauseAllAudio(void) {
 }
 
 // We could use playAudio instead !
-bool SoundMgr::ResumeAudio(unsigned int audioID) {
+bool SoundMgr::ResumeAudio(const std::string &audio_name) {
+	if (m_sources.find(audio_name) == m_sources.end())
+		return false; //no audio with given name
+	unsigned int audioID = m_sources[audio_name];
+
 	// Make sure the audio source ident is valid and usable
 	if (audioID >= MAX_AUDIO_SOURCES || !m_audio_source_in_use[audioID])
 		return false;
@@ -307,12 +330,11 @@ bool SoundMgr::ResumeAllAudio(void) {
 
 	int sourceAudioState = 0;
 
-	for (unsigned int i = 0; i < m_audio_sources_in_use_count; ++i) {
-		// Are we currently playing the audio source?
-		alGetSourcei(m_audio_sources[i], AL_SOURCE_STATE, &sourceAudioState);
+	for (const std::pair<std::string, unsigned int> &s : m_sources) {
+		alGetSourcei(m_audio_sources[s.second], AL_SOURCE_STATE, &sourceAudioState);
 
 		if (sourceAudioState == AL_PAUSED)
-			ResumeAudio(i);
+			ResumeAudio(s.first);
 	}
 
 	if (CheckALError("resumeAllAudio::alSourceStop "))
@@ -321,7 +343,11 @@ bool SoundMgr::ResumeAllAudio(void) {
 	return true;
 }
 
-bool SoundMgr::SetSoundPosition(unsigned int audioID, const Ogre::Vector3 &position) {
+bool SoundMgr::SetSoundPosition(const std::string &audio_name, const Ogre::Vector3 &position) {
+	if (m_sources.find(audio_name) == m_sources.end())
+		return false; //no audio with given name
+	unsigned int audioID = m_sources[audio_name];
+
 	if (audioID >= MAX_AUDIO_SOURCES || !m_audio_source_in_use[audioID])
 		return false;
 
@@ -336,7 +362,12 @@ bool SoundMgr::SetSoundPosition(unsigned int audioID, const Ogre::Vector3 &posit
 	return true;
 }
 
-bool SoundMgr::SetSoundPosition(unsigned int audioID, const Ogre::Vector3 &position, const Ogre::Vector3 &velocity, const Ogre::Vector3 &direction) {
+bool SoundMgr::SetSoundPosition(const std::string &audio_name, const Ogre::Vector3 &position, const Ogre::Vector3 &velocity,
+	const Ogre::Vector3 &direction) {
+	if (m_sources.find(audio_name) == m_sources.end())
+		return false; //no audio with given name
+	unsigned int audioID = m_sources[audio_name];
+
 	if (audioID >= MAX_AUDIO_SOURCES || !m_audio_source_in_use[audioID])
 		return false;
 
@@ -367,8 +398,12 @@ bool SoundMgr::SetSoundPosition(unsigned int audioID, const Ogre::Vector3 &posit
 	return true;
 }
 
-bool SoundMgr::SetSound(unsigned int audioID, const Ogre::Vector3 &position, const Ogre::Vector3 &velocity, const Ogre::Vector3 &direction,
+bool SoundMgr::SetSound(const std::string &audio_name, const Ogre::Vector3 &position, const Ogre::Vector3 &velocity, const Ogre::Vector3 &direction,
 	float maxDistance, bool playNow, bool forceRestart, float minGain) {
+	if (m_sources.find(audio_name) == m_sources.end())
+		return false; //no audio with given name
+	unsigned int audioID = m_sources[audio_name];
+
 	if (audioID >= MAX_AUDIO_SOURCES || !m_audio_source_in_use[audioID])
 		return false;
 
@@ -410,7 +445,7 @@ bool SoundMgr::SetSound(unsigned int audioID, const Ogre::Vector3 &position, con
 
 	// Do we play the sound now ?
 	if (playNow)
-		return PlayAudio(audioID, forceRestart); // TODO bof... not in this fct
+		return PlayAudio(audio_name, forceRestart); // TODO bof... not in this fct
 
 	return true;
 }

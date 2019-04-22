@@ -1,21 +1,20 @@
 #include "Entity381SubClasses/Entity381Banshee.h"
 
-Entity381Banshee::Entity381Banshee(Engine *engine, const std::string &meshfilename, int identity, const Ogre::Vector3 &pos) :
-	Entity381(engine, meshfilename, identity, pos) {
-	this->m_speed_min = 0;
-	this->m_speed_max = 250.0f; //meters per second...
-	this->m_acceleration = 30.0f; // slow
-	this->m_turn_rate = 45.0f; //2 degrees per second
+Entity381Banshee::Entity381Banshee(Engine *engine, const std::string &mesh, int id, const Ogre::Vector3 &pos) :
+	Entity381(engine, mesh, id, true, "assets/sounds/Selection_Banshee.ogg", pos) {
 
-	m_selection_sound = "assets/sounds/Selection_Banshee.ogg";
+	m_speed_max = 250.0f;
+	m_acceleration = 30.0f;
+	m_turn_rate = 45.0f;
 
-	m_aspects.push_back(new AspectPhysics2D(this));
+	m_pitch_rate_max = 12.f;
+	m_roll_rate_max = 12.f;
 }
 
 Entity381Banshee::~Entity381Banshee(void) {
 }
 
-void Entity381Banshee::FixMeshOrientation(float &yaw, float &pitch, float &roll) {
+void Entity381Banshee::GetMeshOrientationsFixed(float &yaw, float &pitch, float &roll) const {
 	float temp = pitch;
 	pitch = roll;
 	roll = temp;

@@ -12,8 +12,8 @@
 
 #include "Mgr.h"
 
-#define MAX_AUDIO_BUFFERS 64
-#define MAX_AUDIO_SOURCES 64
+#define MAX_AUDIO_BUFFERS 256
+#define MAX_AUDIO_SOURCES 256
 #define MAX_FILENAME_LENGTH 512
 
 class SoundMgr: Mgr {
@@ -28,29 +28,29 @@ public:
 	virtual void Stop(void) override final;
 
 public:
-	void SetAudioPath(const char* path);
+	void SetAudioPath(const std::string &path);
 
-	// Aquire an Audio Source
-	// filename = pass in the sound file to play for this source (ex. "myfile.wav")
-	// audioId   = returns the AudioSource identifier you will need for the PlayAudioSource();
-	bool LoadAudio(const std::string &file_name, unsigned int* audioId, bool loop = true);
-	bool ReleaseAudio(unsigned int audioID);
+	// filen_name = pass in the sound file to play for this source (ex. "myfile.wav")
+	// audio_name = name to associate identifier - you will need for the PlayAudioSource();
+	bool LoadAudio(const std::string &file_name, const std::string &audio_name, bool loop = false);
+	bool ReleaseAudio(const std::string &audio_name);
 
 	// Returns true if the audio is started from the beginning
 	// false if error or if already playing
-	bool PlayAudio(unsigned int audioId, bool forceRestart);
-	bool StopAudio(unsigned int audioID);
+	bool PlayAudio(const std::string &audio_name, bool forceRestart = true);
+	bool StopAudio(const std::string &audio_name);
 	bool StopAllAudio(void);
 
-	bool PauseAudio(unsigned int audioID);
+	bool PauseAudio(const std::string &audio_name);
 	bool PauseAllAudio(void);
-	bool ResumeAudio(unsigned int audioID);
+	bool ResumeAudio(const std::string &audio_name);
 	bool ResumeAllAudio(void);
 
-	bool SetSoundPosition(unsigned int audioID, const Ogre::Vector3 &position);
-	bool SetSoundPosition(unsigned int audioID, const Ogre::Vector3 &position, const Ogre::Vector3 &velocity, const Ogre::Vector3 &direction);
+	bool SetSoundPosition(const std::string &audio_name, const Ogre::Vector3 &position);
+	bool SetSoundPosition(const std::string &audio_name, const Ogre::Vector3 &position, const Ogre::Vector3 &velocity,
+		const Ogre::Vector3 &direction);
 
-	bool SetSound(unsigned int audioID, const Ogre::Vector3 &position, const Ogre::Vector3 &velocity, const Ogre::Vector3 &direction,
+	bool SetSound(const std::string &audio_name, const Ogre::Vector3 &position, const Ogre::Vector3 &velocity, const Ogre::Vector3 &direction,
 		float maxDistance, bool playNow, bool forceRestart, float minGain);
 
 	bool SetListenerPosition(const Ogre::Vector3 &position, const Ogre::Vector3 &velocity, const Ogre::Quaternion &orientation);
@@ -86,6 +86,8 @@ private:
 	unsigned int m_audio_sources_in_use_count;
 	unsigned int m_audio_sources[MAX_AUDIO_SOURCES];
 	bool m_audio_source_in_use[MAX_AUDIO_SOURCES];
+
+	std::unordered_map<std::string, unsigned int> m_sources; //maps audio names to sources
 
 	ALfloat m_position[3];
 	ALfloat m_velocity[3];
