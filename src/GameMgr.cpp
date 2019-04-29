@@ -33,12 +33,12 @@ void GameMgr::LoadLevel(void) {
 	MakeEntities();
 
 	m_engine->GetSoundMgr()->LoadAudio("assets/sounds/inflight.ogg", m_flight_sound);
-
-	if(m_engine->GetSoundMgr()->LoadAudio("assets/sounds/shooting.ogg", m_bullet_sound)){
+  if(m_engine->GetSoundMgr()->LoadAudio("assets/sounds/shooting.ogg", m_bullet_sound)){
 		std::cout << "LOADED " << std::endl;
 	}else{
 		std::cout << "NOT LOADED " << std::endl;
 	}
+	m_engine->GetSoundMgr()->LoadAudio("assets/sounds/shooting.ogg", m_bullet_sound);
 	m_engine->GetSoundMgr()->PlayAudio(m_flight_sound);
 }
 
@@ -313,6 +313,7 @@ void GameMgr::HandleBulletsAndFiring(float dt) {
 	if (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_SPACE) && m_fire_cooldown < 0) {
 		m_bullets.push_front(new Bullet(m_engine, m_plane->GetPosition() + 20 * m_plane->GetDirection(), m_plane->GetDirection()));
 		//std::cout << m_plane->GetDirection() << std::endl;
+		m_engine->GetSoundMgr()->PlayAudio(m_bullet_sound);
 		m_fire_cooldown = 0.5;
 		m_engine->GetSoundMgr()->PauseAllAudio();
 		m_engine->GetSoundMgr()->PlayAudio(m_bullet_sound);
