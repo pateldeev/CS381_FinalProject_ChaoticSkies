@@ -75,8 +75,29 @@ void EntityMgr::DeleteAllEntities(void) {
 	m_entity_selected_index = -1;
 }
 
-void EntityMgr::DeleteEntity(Entity381* entity) {
+bool EntityMgr::DeleteEntity(Entity381* entity) {
+	if (m_entity_selected == entity) {
+		m_entity_selected = nullptr;
+		m_entity_selected_index = -1;
+	}
 
+	std::vector<Entity381*>::iterator pos = m_entities.end();
+	unsigned int pos_index = 0;
+	for (std::vector<Entity381*>::iterator i = m_entities.begin(); i != m_entities.end(); ++i, ++pos_index) {
+		if (*i == entity) {
+			pos = i;
+			break;
+		}
+	}
+
+	if (pos == m_entities.end())
+		return false;
+
+	m_entities_selected.erase(pos_index);
+
+	delete *pos;
+	m_entities.erase(pos);
+	return true;
 }
 
 unsigned int EntityMgr::GetEntityCount(void) const {

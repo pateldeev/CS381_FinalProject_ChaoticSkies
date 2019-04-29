@@ -23,6 +23,8 @@ GameMgr::~GameMgr(void) {
 }
 
 void GameMgr::Init(void) {
+	m_flight_sound = "assets/sounds/inflight.ogg";
+	m_bullet_sound = "assets/sounds/shooting.ogg";
 }
 
 void GameMgr::LoadLevel(void) {
@@ -32,13 +34,8 @@ void GameMgr::LoadLevel(void) {
 	MakeLighting();
 	MakeEntities();
 
-	m_engine->GetSoundMgr()->LoadAudio("assets/sounds/inflight.ogg", m_flight_sound);
-  if(m_engine->GetSoundMgr()->LoadAudio("assets/sounds/shooting.ogg", m_bullet_sound)){
-		std::cout << "LOADED " << std::endl;
-	}else{
-		std::cout << "NOT LOADED " << std::endl;
-	}
-	m_engine->GetSoundMgr()->LoadAudio("assets/sounds/shooting.ogg", m_bullet_sound);
+	m_engine->GetSoundMgr()->LoadAudio(m_flight_sound, m_flight_sound);
+	m_engine->GetSoundMgr()->LoadAudio(m_bullet_sound, m_bullet_sound);
 	m_engine->GetSoundMgr()->PlayAudio(m_flight_sound);
 }
 
