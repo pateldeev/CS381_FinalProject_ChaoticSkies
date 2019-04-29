@@ -25,8 +25,9 @@ void Entity381::LoadAudio(void) {
 }
 
 void Entity381::MakeSelectionSound(void) {
-	m_engine->GetSoundMgr()->StopAllAudio();
+	m_engine->GetSoundMgr()->PauseAllAudio();
 	m_engine->GetSoundMgr()->PlayAudio(m_selection_sound);
+	m_engine->GetSoundMgr()->ResumeAllAudio();
 }
 
 void Entity381::RemoveAllCommands(void) {

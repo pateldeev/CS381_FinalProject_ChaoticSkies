@@ -56,6 +56,7 @@ private:
 	std::list<Bullet*> m_bullets;
 
 	std::string m_flight_sound;
+	std::string m_bullet_sound;
 };
 
 #endif
