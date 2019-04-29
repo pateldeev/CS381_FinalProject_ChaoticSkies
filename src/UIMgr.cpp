@@ -7,7 +7,7 @@
 #include "UIMgr.h"
 
 UIMgr::UIMgr(Engine* engine) :
-	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_health_bar(nullptr) {
+	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_health_bar(nullptr), m_enemy_counter(nullptr) {
 }
 
 UIMgr::~UIMgr(void) {
@@ -26,6 +26,7 @@ void UIMgr::LoadLevel(void) {
 
 	m_tray_mgr->createButton(OgreBites::TL_TOPLEFT, "Credits", "View Credits");
 	m_tray_mgr->createButton(OgreBites::TL_TOPLEFT, "Exit", "Exit Game!");
+	m_enemy_counter  = m_tray_mgr->createLabel(OgreBites::TL_TOPLEFT, "EnemyCounter", "Enemy Counter: " );
 
 	m_health_bar = m_tray_mgr->createProgressBar(OgreBites::TL_TOP, "HealthBar", "Health", 500, 400);
 	SetHealthBarPercentage(100);
@@ -40,6 +41,8 @@ void UIMgr::Tick(float dt) {
 
 	if (GetHealthPercentage() <= 0)
 		m_engine->GetGameMgr()->CrashPlane();
+
+	m_enemy_counter->setCaption("Enemy Counter: " +std::to_string(m_engine->GetGameMgr()->GetNumEnemies()));
 }
 
 void UIMgr::Stop(void) {
