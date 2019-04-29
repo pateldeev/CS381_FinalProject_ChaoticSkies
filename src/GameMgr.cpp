@@ -14,8 +14,8 @@
 #include "Utils.h"
 
 GameMgr::GameMgr(Engine *engine) :
-	Mgr(engine), m_camera_node(nullptr), m_camera_following(nullptr), m_camera_manual_control(OIS::KC_UNASSIGNED),
-	m_desired_control(OIS::KC_UNASSIGNED) {
+	Mgr(engine), m_camera_node(nullptr), m_camera_following(nullptr), m_plane(nullptr), m_camera_manual_control(OIS::KC_UNASSIGNED),
+	m_desired_control(OIS::KC_UNASSIGNED), m_fire_cooldown(0) {
 }
 
 GameMgr::~GameMgr(void) {
@@ -36,10 +36,14 @@ void GameMgr::LoadLevel(void) {
 void GameMgr::Tick(float dt) {
 	UpdateCamera(dt);
 	UpdateSelectedDesiredAtributes(dt);
+	HandleBulletsAndFiring(dt);
+	//std::cout << m_plane->GetRoll() << std::endl;
 }
 
 void GameMgr::Stop(void) {
-
+	for (Bullet* b : m_bullets)
+		delete b;
+	m_bullets.clear();
 }
 
 void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
@@ -49,14 +53,14 @@ void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
 	}
 
 	if (key == OIS::KC_R && m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LCONTROL)) {
-		SetCameraStateToDefault();
+		ResetLevel();
 		return;
 	}
 
 	if (key == OIS::KC_I || key == OIS::KC_K || key == OIS::KC_J || key == OIS::KC_L) {
 		m_desired_control = key;
 		return;
-	} else if (key == OIS::KC_SPACE) {
+	} else if (key == OIS::KC_B) {
 		m_engine->GetEntityMgr()->StopSelectedEntities();
 		return;
 	}
@@ -77,14 +81,26 @@ void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
 		return;
 	}
 
-	if (key == OIS::KC_UP)
-		m_engine->GetEntityMgr()->PitchSelectedUp();
-	else if (key == OIS::KC_DOWN)
-		m_engine->GetEntityMgr()->PitchSelectedDown();
-	else if (key == OIS::KC_LEFT)
-		m_engine->GetEntityMgr()->RollSelectedLeft();
-	else if (key == OIS::KC_RIGHT)
-		m_engine->GetEntityMgr()->RollSelectedRight();
+	//handle 3D rotation of plane
+	if (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LCONTROL)) {
+		if (key == OIS::KC_UP && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_DOWN))
+			m_engine->GetEntityMgr()->StopSelectedPitch();
+		else if (key == OIS::KC_DOWN && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_UP))
+			m_engine->GetEntityMgr()->StopSelectedPitch();
+		else if (key == OIS::KC_LEFT && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_RIGHT))
+			m_plane->AddCommand(new CommandRoll(m_plane, false), true);
+		else if (key == OIS::KC_RIGHT && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LEFT))
+			m_plane->AddCommand(new CommandRoll(m_plane, true), false);
+	} else {
+		if (key == OIS::KC_UP)
+			m_engine->GetEntityMgr()->PitchSelectedUp();
+		else if (key == OIS::KC_DOWN)
+			m_engine->GetEntityMgr()->PitchSelectedDown();
+		else if (key == OIS::KC_LEFT)
+			m_engine->GetEntityMgr()->RollSelectedLeft();
+		else if (key == OIS::KC_RIGHT)
+			m_engine->GetEntityMgr()->RollSelectedRight();
+	}
 }
 
 void GameMgr::InjectKeyRelease(const OIS::KeyCode &key) {
@@ -165,19 +181,23 @@ void GameMgr::MakeEntities(void) {
 	for (unsigned int i = 0; i < 4; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::AlienType, Ogre::Vector3(i * change_x_per_object, 0, -250.f));
 
-	//create 2 banshees
-	change_x_per_object = 150.f;
-	for (unsigned int i = 0; i < 2; ++i)
-		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(i * change_x_per_object, 100, -100.f));
+	//create 5 banshees - enemies
+	change_x_per_object = 450.f;
+	for (unsigned int i = 0; i < 5; ++i)
+		m_enemies.push_back(
+			m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(i * change_x_per_object, 100, -100.f)));
+
+	m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(2500, 50, -50)));
 
 	//add main plane
-	m_camera_following = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(18, 50, -50));
-	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1); //sets selection
+	m_plane = m_camera_following = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(18, 50, -50));
+	m_plane->SetSpeedDesired(60);
+
+	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1);	//sets selection
 
 	//Ogre::ParticleSystem* fireworks = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Fireworks");
 	//Ogre::SceneNode* fireworks_node = m_camera_following->GetOgreSceneNode()->createChildSceneNode("fireworks");
 	//fireworks_node->attachObject(fireworks);
-
 }
 
 void GameMgr::UpdateSelectedDesiredAtributes(float dt) {
@@ -244,7 +264,6 @@ void GameMgr::UpdateCamera(float dt) {
 	if (m_camera_following) //follow entity
 		UpdateCameraToFollowEntity();
 }
-
 void GameMgr::UpdateCameraToFollowEntity(void) {
 
 #if 0
@@ -252,7 +271,7 @@ void GameMgr::UpdateCameraToFollowEntity(void) {
 	Ogre::Vector3 entity_loc = m_camera_following->m_scene_node->_getDerivedPosition();
 	entity_loc.y += (1.6 * entity_size.y);
 	m_camera_node->setPosition(entity_loc);
-	//m_camera_node->translate(0.f, 0.f, 1.5 * std::max(entity_size.x, entity_size.z), Ogre::Node::TransformSpace::TS_LOCAL);
+//m_camera_node->translate(0.f, 0.f, 1.5 * std::max(entity_size.x, entity_size.z), Ogre::Node::TransformSpace::TS_LOCAL);
 #else
 	m_camera_node->setPosition(m_camera_following->GetOgreSceneNode()->_getDerivedPosition());
 	m_camera_node->translate(Ogre::Vector3(-2, 4, 0), Ogre::Node::TransformSpace::TS_LOCAL);
@@ -262,12 +281,47 @@ void GameMgr::UpdateCameraToFollowEntity(void) {
 	m_camera_node->yaw(Ogre::Degree(FixAngle(m_camera_following->GetHeading() - 90)));
 	m_camera_node->pitch(Ogre::Degree(m_camera_following->GetPitch()));
 	m_camera_node->roll(Ogre::Degree(m_camera_following->GetRoll()));
+}
 
+void GameMgr::HandleBulletsAndFiring(float dt) {
+	for (std::list<Bullet*>::iterator b = m_bullets.begin(); b != m_bullets.end(); ++b) {
+		if (!((*b)->IsStillActive())) {
+			delete *b;
+			b = m_bullets.erase(b);
+		} else {
+			(*b)->Tick(dt);
+			for (Entity381* e : m_enemies) {
+				if ((*b)->HasCollidedWithInLastTick(e->GetPosition())) {
+					e->AddSmoke();
+					(*b)->Deactivate();
+				}
+			}
+		}
+	}
+
+	//handle firing
+	m_fire_cooldown -= dt;
+	if (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_SPACE) && m_fire_cooldown < 0) {
+		m_bullets.push_front(new Bullet(m_engine, m_plane->GetPosition() + 20 * m_plane->GetDirection(), m_plane->GetDirection()));
+		//std::cout << m_plane->GetDirection() << std::endl;
+		m_fire_cooldown = 1;
+	}
 }
 
 void GameMgr::SetCameraStateToDefault(void) {
 	m_camera_node->resetToInitialState();
 	m_camera_node->translate(0, 200, 500, Ogre::Node::TransformSpace::TS_LOCAL);
 	m_camera_following = nullptr;
+}
+
+void GameMgr::ResetLevel(void) {
+	for (Bullet* b : m_bullets)
+		delete b;
+	m_bullets.clear();
+
+	m_enemies.clear();
+	m_engine->GetEntityMgr()->DeleteAllEntities();
+
+	MakeEntities();
 }
 

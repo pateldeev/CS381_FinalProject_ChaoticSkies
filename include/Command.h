@@ -27,5 +27,6 @@ protected:
 };
 
 #include "CommandSubClasses/CommandMoveTo.h"
+#include "CommandSubClasses/CommandRoll.h"
 
 #endif

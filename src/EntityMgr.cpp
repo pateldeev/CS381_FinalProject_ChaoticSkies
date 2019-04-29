@@ -1,11 +1,6 @@
 #include "Engine.h"
 
-#include "GfxMgr.h"
-#include "InputMgr.h"
-#include "SoundMgr.h"
-#include "GameMgr.h"
 #include "EntityMgr.h"
-#include "UIMgr.h"
 
 EntityMgr::EntityMgr(Engine* engine) :
 	Mgr(engine), m_entity_selected(nullptr), m_entity_selected_index(-1) {
@@ -16,7 +11,6 @@ EntityMgr::~EntityMgr(void) {
 }
 
 void EntityMgr::Init(void) {
-
 }
 
 void EntityMgr::LoadLevel(void) {
@@ -46,28 +40,39 @@ void EntityMgr::Tick(float dt) {
 }
 
 void EntityMgr::Stop(void) {
-
+	for (Entity381* e : m_entities)
+		delete e;
+	m_entities.clear();
 }
 
 Entity381* EntityMgr::CreateEntityOfTypeAtPosition(Entity381Types entType, const Ogre::Vector3 &pos) {
 	if (entType == Entity381Types::CarrierType)
-		m_entities.push_back(new Entity381Carrier(this->m_engine, "cvn68.mesh", m_entities.size(), pos));
+		m_entities.push_back(new Entity381Carrier(this->m_engine, "cvn68.mesh", pos));
 	else if (entType == Entity381Types::DestroyerType)
-		m_entities.push_back(new Entity381Destroyer(this->m_engine, "ddg51.mesh", m_entities.size(), pos));
+		m_entities.push_back(new Entity381Destroyer(this->m_engine, "ddg51.mesh", pos));
 	else if (entType == Entity381Types::SpeedBoatType)
-		m_entities.push_back(new Entity381SpeedBoat(this->m_engine, "cigarette.mesh", m_entities.size(), pos));
+		m_entities.push_back(new Entity381SpeedBoat(this->m_engine, "cigarette.mesh", pos));
 	else if (entType == Entity381Types::FrigateType)
-		m_entities.push_back(new Entity381Frigate(this->m_engine, "sleek.mesh", m_entities.size(), pos));
+		m_entities.push_back(new Entity381Frigate(this->m_engine, "sleek.mesh", pos));
 	else if (entType == Entity381Types::AlienType)
-		m_entities.push_back(new Entity381Alien(this->m_engine, "alienship.mesh", m_entities.size(), pos));
+		m_entities.push_back(new Entity381Alien(this->m_engine, "alienship.mesh", pos));
 	else if (entType == Entity381Types::BansheeType)
-		m_entities.push_back(new Entity381Banshee(this->m_engine, "banshee.mesh", m_entities.size(), pos));
+		m_entities.push_back(new Entity381Banshee(this->m_engine, "banshee.mesh", pos));
 	else if (entType == Entity381Types::PlaneType)
-		m_entities.push_back(new Entity381Plane(this->m_engine, "RZR-002.mesh", m_entities.size(), pos));
+		m_entities.push_back(new Entity381Plane(this->m_engine, "RZR-002.mesh", pos));
 	else
 		return nullptr; //unknown type
 
 	return m_entities.back();
+}
+
+void EntityMgr::DeleteAllEntities(void) {
+	for (Entity381* e : m_entities)
+		delete e;
+	m_entities.clear();
+	m_entity_selected = nullptr;
+	m_entities_selected.clear();
+	m_entity_selected_index = -1;
 }
 
 unsigned int EntityMgr::GetEntityCount(void) const {

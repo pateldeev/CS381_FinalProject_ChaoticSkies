@@ -12,10 +12,6 @@
 
 #include "GfxMgr.h"
 #include "InputMgr.h"
-#include "SoundMgr.h"
-#include "GameMgr.h"
-#include "EntityMgr.h"
-#include "UIMgr.h"
 
 GfxMgr::GfxMgr(Engine *engine) :
 	Mgr(engine), m_root(nullptr), m_window(nullptr), m_scene_mgr(nullptr), m_camera(nullptr) {

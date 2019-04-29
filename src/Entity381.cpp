@@ -1,16 +1,16 @@
 #include "Entity381.h"
 
 #include "GfxMgr.h"
-#include "InputMgr.h"
 #include "SoundMgr.h"
-#include "GameMgr.h"
-#include "EntityMgr.h"
-
 #include "Utils.h"
+
+unsigned int Entity381::id_generator = 0;
 
 Entity381::~Entity381(void) {
 	for (Aspect *a : m_aspects)
 		delete a;
+	m_scene_node->getParentSceneNode()->detachObject(m_ogre_entity);
+	m_engine->GetGfxMgr()->GetOgreSceneManager()->destroySceneNode(m_scene_node->getName());
 }
 
 void Entity381::Tick(float dt) {
@@ -40,6 +40,14 @@ void Entity381::AddCommand(Command *c, bool remove_past) {
 		m_AI_aspect->AddCommand(c);
 }
 
+void Entity381::AddSmoke(void) {
+	if (!m_smoke_node) {
+		Ogre::ParticleSystem* smoke = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke_" + m_name, "Crash/Smoke");
+		m_smoke_node = m_scene_node->createChildSceneNode("smoke_" + m_name + "_node");
+		m_smoke_node->attachObject(smoke);
+	}
+}
+
 void Entity381::GetMeshOrientationsFixed(float &yaw, float &pitch, float &roll) const {
 }
 
@@ -51,7 +59,7 @@ void Entity381::HideBoundingBox(void) const {
 	m_scene_node->showBoundingBox(false);
 }
 
-int Entity381::GetId(void) const {
+unsigned int Entity381::GetId(void) const {
 	return m_id;
 }
 
@@ -95,11 +103,11 @@ float Entity381::GetPitch(void) const {
 }
 
 void Entity381::PitchUp(void) {
-	m_pitch_rate_current = 0.5 * m_pitch_rate_max;
+	m_pitch_rate_current = m_pitch_rate_max;
 }
 
 void Entity381::PitchDown(void) {
-	m_pitch_rate_current = -0.5 * m_pitch_rate_max;
+	m_pitch_rate_current = -m_pitch_rate_max;
 }
 
 void Entity381::PitchStop(void) {
@@ -111,11 +119,11 @@ float Entity381::GetRoll(void) const {
 }
 
 void Entity381::RollLeft(void) {
-	m_roll_rate_current = 0.5 * m_roll_rate_max;
+	m_roll_rate_current = m_roll_rate_max;
 }
 
 void Entity381::RollRight(void) {
-	m_roll_rate_current = -0.5 * m_roll_rate_max;
+	m_roll_rate_current = -m_roll_rate_max;
 }
 
 void Entity381::RollStop(void) {
@@ -138,6 +146,17 @@ Ogre::Vector3 Entity381::GetVelocity(void) const {
 	return m_velocity;
 }
 
+Ogre::Vector3 Entity381::GetDirection(void) const {
+	Ogre::Vector3 v = Ogre::Quaternion(Ogre::Degree(m_heading), Ogre::Vector3::UNIT_Y) * Ogre::Vector3::UNIT_X;
+	v.y = Ogre::Math::Tan(Ogre::Degree(m_pitch));
+	return v.normalisedCopy();
+}
+
+Ogre::Quaternion Entity381::GetRotation(void) const {
+	return (Ogre::Quaternion::IDENTITY * Ogre::Quaternion(Ogre::Degree(m_heading), Ogre::Vector3::UNIT_Y)
+		* Ogre::Quaternion(Ogre::Degree(m_pitch), Ogre::Vector3::UNIT_X) * Ogre::Quaternion(Ogre::Degree(m_roll), Ogre::Vector3::UNIT_Z));
+}
+
 const AspectUnitAI* Entity381::GetAIAspect(void) const {
 	return m_AI_aspect;
 }
@@ -150,18 +169,17 @@ float Entity381::GetSpeedMin(void) const {
 	return m_speed_min;
 }
 
-Entity381::Entity381(Engine *engine, const std::string &mesh, int id, bool apply_3Dphysics, const std::string &selection_sound_file,
-	const Ogre::Vector3 &pos, const Ogre::Quaternion &rotate) :
-	m_speed_min(0), m_speed_max(0), m_acceleration(0), m_turn_rate(0), m_pitch_rate_max(0), m_roll_rate_max(0), m_engine(engine), m_id(id),
-	m_name(mesh + IntToString(m_id)), m_mesh_file(mesh), m_selection_sound(selection_sound_file), m_speed(0), m_speed_desired(0), m_heading(0),
-	m_heading_desired(0), m_pitch(0), m_pitch_rate_current(0), m_roll(0), m_roll_rate_current(0), m_ogre_entity(nullptr), m_scene_node(nullptr),
-	m_position(pos), m_velocity(0.f), m_AI_aspect(nullptr) {
+Entity381::Entity381(Engine *engine, const std::string &mesh, bool apply_3Dphysics, const std::string &selection_sound_file, const Ogre::Vector3 &pos,
+	const Ogre::Quaternion &rotate) :
+	m_speed_min(0), m_speed_max(0), m_acceleration(0), m_turn_rate(0), m_pitch_rate_max(0), m_roll_rate_max(0), m_engine(engine),
+	m_id(id_generator++), m_name(mesh + IntToString(m_id)), m_mesh_file(mesh), m_selection_sound(selection_sound_file), m_speed(0),
+	m_speed_desired(0), m_heading(0), m_heading_desired(0), m_pitch(0), m_pitch_rate_current(0), m_roll(0), m_roll_rate_current(0),
+	m_ogre_entity(nullptr), m_scene_node(nullptr), m_smoke_node(nullptr), m_position(pos), m_velocity(0.f), m_AI_aspect(nullptr) {
 
-	m_ogre_entity = engine->GetGfxMgr()->GetOgreSceneManager()->createEntity(m_mesh_file);
-	m_scene_node = engine->GetGfxMgr()->GetOgreSceneManager()->getRootSceneNode()->createChildSceneNode(m_name, pos, rotate);
+	m_ogre_entity = m_engine->GetGfxMgr()->GetOgreSceneManager()->createEntity(m_mesh_file);
+	m_scene_node = m_engine->GetGfxMgr()->GetOgreSceneManager()->getRootSceneNode()->createChildSceneNode(m_name, m_position, rotate);
 	m_scene_node->attachObject(m_ogre_entity);
 
-	m_aspects.push_back(new AspectRenderable(this));
 	m_AI_aspect = new AspectUnitAI(this);
 	m_aspects.push_back(static_cast<Aspect*>(m_AI_aspect));
 
@@ -169,5 +187,7 @@ Entity381::Entity381(Engine *engine, const std::string &mesh, int id, bool apply
 		m_aspects.push_back(new AspectPhysics3D(this));
 	else
 		m_aspects.push_back(new AspectPhysics2D(this));
+
+	m_aspects.push_back(new AspectRenderable(this));
 }
 

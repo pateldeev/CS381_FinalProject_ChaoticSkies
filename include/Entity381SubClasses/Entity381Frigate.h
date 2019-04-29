@@ -5,7 +5,7 @@
 
 class Entity381Frigate: public Entity381 {
 public:
-	Entity381Frigate(Engine *engine, const std::string &mesh, int id, const Ogre::Vector3 &pos = Ogre::Vector3::ZERO);
+	Entity381Frigate(Engine *engine, const std::string &mesh, const Ogre::Vector3 &pos = Ogre::Vector3::ZERO);
 	virtual ~Entity381Frigate(void);
 };
 

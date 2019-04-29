@@ -1,7 +1,7 @@
 #include "Entity381SubClasses/Entity381Banshee.h"
 
-Entity381Banshee::Entity381Banshee(Engine *engine, const std::string &mesh, int id, const Ogre::Vector3 &pos) :
-	Entity381(engine, mesh, id, true, "assets/sounds/Selection_Banshee.ogg", pos) {
+Entity381Banshee::Entity381Banshee(Engine *engine, const std::string &mesh, const Ogre::Vector3 &pos) :
+	Entity381(engine, mesh, true, "assets/sounds/Selection_Banshee.ogg", pos) {
 
 	m_speed_max = 250.0f;
 	m_acceleration = 30.0f;

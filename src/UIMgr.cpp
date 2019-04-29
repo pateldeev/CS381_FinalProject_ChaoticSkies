@@ -3,8 +3,6 @@
 #include "GfxMgr.h"
 #include "InputMgr.h"
 #include "SoundMgr.h"
-#include "GameMgr.h"
-#include "EntityMgr.h"
 #include "UIMgr.h"
 
 UIMgr::UIMgr(Engine* engine) :
@@ -36,6 +34,7 @@ void UIMgr::LoadLevel(void) {
 	m_tray_mgr->getCursorImage()->hide();
 
 	m_engine->GetSoundMgr()->LoadAudio("assets/sounds/Explosion.ogg", m_explosion_sound);
+
 }
 
 void UIMgr::Tick(float dt) {
@@ -44,17 +43,9 @@ void UIMgr::Tick(float dt) {
 	float percentage = GetHealthPercentage();
 	if (percentage <= 0) {
 		m_engine->GetSoundMgr()->PlayAudio(m_explosion_sound);
-		SetHealthBarPercentage(100);
-
-		static int x = 0;
-		if (++x == 1) {
-			Ogre::ParticleSystem* smoke = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Smoke");
-			Ogre::SceneNode* smoke_node = m_engine->GetEntityMgr()->GetMainSelected()->GetOgreSceneNode()->createChildSceneNode("smoke");
-			smoke_node->attachObject(smoke);
-		}
-
+		//SetHealthBarPercentage(100);
 	} else {
-		SetHealthBarPercentage(percentage - 0.1 * dt);
+		//SetHealthBarPercentage(percentage - 0.1 * dt);
 	}
 }
 

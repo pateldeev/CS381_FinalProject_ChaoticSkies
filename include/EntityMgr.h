@@ -20,6 +20,7 @@ public:
 
 public:
 	Entity381* CreateEntityOfTypeAtPosition(Entity381Types type, const Ogre::Vector3 &pos);
+	void DeleteAllEntities(void);
 
 	unsigned int GetEntityCount(void) const;
 

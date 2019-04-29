@@ -22,4 +22,6 @@ void AspectRenderable::Tick(float dt) {
 	n->yaw(Ogre::Degree(yaw));
 	n->pitch(Ogre::Degree(pitch));
 	n->roll(Ogre::Degree(roll));
+
+	//std::cout << m_entity->GetRoll() << std::endl;
 }

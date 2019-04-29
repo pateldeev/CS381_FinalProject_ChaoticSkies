@@ -10,7 +10,7 @@
 #include "Aspect.h"
 
 class Entity381 {
-protected:
+public:
 	virtual ~Entity381(void);
 
 public:
@@ -22,13 +22,15 @@ public:
 	void RemoveAllCommands(void);
 	void AddCommand(Command *c, bool remove_past = false);
 
+	void AddSmoke(void);
+
 	virtual void GetMeshOrientationsFixed(float &yaw, float &pitch, float &roll) const;
 
 	void ShowBoundingBox(void) const;
 	void HideBoundingBox(void) const;
 
 public:
-	int GetId(void) const;
+	unsigned int GetId(void) const;
 	std::string GetName(void) const;
 
 	float GetSpeed(void) const;
@@ -54,6 +56,8 @@ public:
 
 	Ogre::Vector3 GetPosition(void) const;
 	Ogre::Vector3 GetVelocity(void) const;
+	Ogre::Vector3 GetDirection(void) const; //returns direction of mesh
+	Ogre::Quaternion GetRotation(void) const; //returns rotation of mesh
 
 	const AspectUnitAI* GetAIAspect(void) const;
 
@@ -61,7 +65,7 @@ public:
 	float GetSpeedMin(void) const;
 
 protected:
-	Entity381(Engine *engine, const std::string &mesh, int id, bool apply_3Dphysics = false, const std::string &selection_sound_file = "",
+	Entity381(Engine *engine, const std::string &mesh, bool apply_3Dphysics = false, const std::string &selection_sound_file = "",
 		const Ogre::Vector3 &pos = Ogre::Vector3::ZERO, const Ogre::Quaternion &rotate = Ogre::Quaternion::IDENTITY);
 
 protected:
@@ -76,10 +80,10 @@ protected:
 private:
 	Engine *m_engine;
 
-	int m_id;
-	std::string m_name;
+	const unsigned int m_id;
+	const std::string m_name;
 
-	std::string m_mesh_file;
+	const std::string m_mesh_file;
 
 	std::string m_selection_sound;
 
@@ -96,6 +100,7 @@ private:
 
 	Ogre::Entity* m_ogre_entity;
 	Ogre::SceneNode* m_scene_node;
+	Ogre::SceneNode* m_smoke_node;
 
 	Ogre::Vector3 m_position;
 	Ogre::Vector3 m_velocity;
@@ -106,6 +111,10 @@ private:
 private:
 	friend class AspectPhysics2D;
 	friend class AspectPhysics3D;
+	friend class CommandRoll;
+
+private:
+	static unsigned int id_generator;
 };
 
 enum Entity381Types {

@@ -1,7 +1,7 @@
 #include "Entity381SubClasses/Entity381Destroyer.h"
 
-Entity381Destroyer::Entity381Destroyer(Engine *engine, const std::string &mesh, int id, const Ogre::Vector3 &pos) :
-	Entity381(engine, mesh, id, false, "assets/sounds/Selection_Destroyer.ogg", pos) {
+Entity381Destroyer::Entity381Destroyer(Engine *engine, const std::string &mesh, const Ogre::Vector3 &pos) :
+	Entity381(engine, mesh, false, "assets/sounds/Selection_Destroyer.ogg", pos) {
 
 	m_speed_max = 32.0f;
 	m_acceleration = 10.0f;
