@@ -15,6 +15,8 @@ void AspectRenderable::Tick(float dt) {
 	float yaw = m_entity->GetHeading();
 	float pitch = m_entity->GetPitch();
 	float roll = m_entity->GetRoll();
+
+	//std::cout<< "pitch: " << pitch << std::endl;
 	m_entity->GetMeshOrientationsFixed(yaw, pitch, roll);
 
 	Ogre::SceneNode* n = m_entity->GetOgreSceneNode();
