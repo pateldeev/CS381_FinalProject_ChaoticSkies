@@ -75,6 +75,10 @@ void EntityMgr::DeleteAllEntities(void) {
 	m_entity_selected_index = -1;
 }
 
+void EntityMgr::DeleteEntity(Entity381* entity) {
+
+}
+
 unsigned int EntityMgr::GetEntityCount(void) const {
 	return m_entities.size();
 }

@@ -10,7 +10,7 @@ Entity381Plane::Entity381Plane(Engine *engine, const std::string &mesh, const Og
 	m_turn_rate = 10.f;
 
 	m_pitch_rate_max = 11.5;
-	m_roll_rate_max = 8.5;
+	m_roll_rate_max = 50;
 }
 
 Entity381Plane::~Entity381Plane(void) {
