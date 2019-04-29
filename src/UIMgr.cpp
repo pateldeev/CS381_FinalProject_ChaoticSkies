@@ -3,6 +3,7 @@
 #include "GfxMgr.h"
 #include "InputMgr.h"
 #include "SoundMgr.h"
+#include "GameMgr.h"
 #include "UIMgr.h"
 
 UIMgr::UIMgr(Engine* engine) :
@@ -29,24 +30,16 @@ void UIMgr::LoadLevel(void) {
 	m_health_bar = m_tray_mgr->createProgressBar(OgreBites::TL_TOP, "HealthBar", "Health", 500, 400);
 	SetHealthBarPercentage(100);
 
-	m_tray_mgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
-	m_tray_mgr->showLogo(OgreBites::TL_BOTTOMRIGHT);
+	//m_tray_mgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
+	//m_tray_mgr->showLogo(OgreBites::TL_BOTTOMRIGHT);
 	m_tray_mgr->getCursorImage()->hide();
-
-	m_engine->GetSoundMgr()->LoadAudio("assets/sounds/Explosion.ogg", m_explosion_sound);
-
 }
 
 void UIMgr::Tick(float dt) {
 	m_tray_mgr->refreshCursor();
 
-	float percentage = GetHealthPercentage();
-	if (percentage <= 0) {
-		m_engine->GetSoundMgr()->PlayAudio(m_explosion_sound);
-		//SetHealthBarPercentage(100);
-	} else {
-		//SetHealthBarPercentage(percentage - 0.1 * dt);
-	}
+	if (GetHealthPercentage() <= 0)
+		m_engine->GetGameMgr()->CrashPlane();
 }
 
 void UIMgr::Stop(void) {

@@ -64,6 +64,9 @@ public:
 	float GetSpeedMax(void) const;
 	float GetSpeedMin(void) const;
 
+	void Kill(void);
+	bool IsAlive(void) const;
+
 protected:
 	Entity381(Engine *engine, const std::string &mesh, bool apply_3Dphysics = false, const std::string &selection_sound_file = "",
 		const Ogre::Vector3 &pos = Ogre::Vector3::ZERO, const Ogre::Quaternion &rotate = Ogre::Quaternion::IDENTITY);
@@ -107,6 +110,8 @@ private:
 
 	AspectUnitAI *m_AI_aspect;
 	std::vector<Aspect*> m_aspects;
+
+	bool m_is_alive;
 
 private:
 	friend class AspectPhysics2D;

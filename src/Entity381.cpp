@@ -170,12 +170,20 @@ float Entity381::GetSpeedMin(void) const {
 	return m_speed_min;
 }
 
+void Entity381::Kill(void){
+	m_is_alive = false;
+}
+
+bool Entity381::IsAlive(void) const{
+	return m_is_alive;
+}
+
 Entity381::Entity381(Engine *engine, const std::string &mesh, bool apply_3Dphysics, const std::string &selection_sound_file, const Ogre::Vector3 &pos,
 	const Ogre::Quaternion &rotate) :
 	m_speed_min(0), m_speed_max(0), m_acceleration(0), m_turn_rate(0), m_pitch_rate_max(0), m_roll_rate_max(0), m_engine(engine),
 	m_id(id_generator++), m_name(mesh + IntToString(m_id)), m_mesh_file(mesh), m_selection_sound(selection_sound_file), m_speed(0),
 	m_speed_desired(0), m_heading(0), m_heading_desired(0), m_pitch(0), m_pitch_rate_current(0), m_roll(0), m_roll_rate_current(0),
-	m_ogre_entity(nullptr), m_scene_node(nullptr), m_smoke_node(nullptr), m_position(pos), m_velocity(0.f), m_AI_aspect(nullptr) {
+	m_ogre_entity(nullptr), m_scene_node(nullptr), m_smoke_node(nullptr), m_position(pos), m_velocity(0.f), m_AI_aspect(nullptr), m_is_alive(true) {
 
 	m_ogre_entity = m_engine->GetGfxMgr()->GetOgreSceneManager()->createEntity(m_mesh_file);
 	m_scene_node = m_engine->GetGfxMgr()->GetOgreSceneManager()->getRootSceneNode()->createChildSceneNode(m_name, m_position, rotate);

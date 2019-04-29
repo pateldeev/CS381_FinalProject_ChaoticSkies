@@ -63,7 +63,7 @@ private:
 	std::unordered_set<unsigned int> m_entities_selected; //hold entities selected in group - not main one
 };
 
-#define EDIT_BOUNDINGBOX_COLOR_EXPERIMENAL //experimental function that does unsafe static casting to access protected member of Ogre::SceneNode to change bounding box color
+//#define EDIT_BOUNDINGBOX_COLOR_EXPERIMENAL //experimental function that does unsafe static casting to access protected member of Ogre::SceneNode to change bounding box color
 #ifdef EDIT_BOUNDINGBOX_COLOR_EXPERIMENAL
 #include <OGRE/OgreWireBoundingBox.h>
 class BoudingBoxColorChangerExperimenatal: public Ogre::SceneNode {

@@ -44,8 +44,6 @@ private:
 	OgreBites::SdkTrayManager* m_tray_mgr;
 	Ogre::OverlaySystem* m_overlay_system;
 
-	std::string m_explosion_sound;
-
 	OgreBites::ProgressBar* m_health_bar;
 };
 

@@ -24,6 +24,14 @@ public:
 	void InjectKeyPress(const OIS::KeyCode& key);
 	void InjectKeyRelease(const OIS::KeyCode &key);
 
+public:
+	void CrashPlane(void);
+	void WinLevel(void);
+	void LoseLevel(void);
+
+public:
+	unsigned int GetNumEnemies(void) const;
+
 private:
 	void MakeCamera(void);
 	void MakeGround(void);
@@ -37,6 +45,7 @@ private:
 	void UpdateCameraToFollowEntity(void);
 
 	void HandleBulletsAndFiring(float dt);
+	void RemoveDeadEntities(void);
 
 	void SetCameraStateToDefault(void);
 
@@ -56,6 +65,7 @@ private:
 	std::list<Bullet*> m_bullets;
 
 	std::string m_flight_sound;
+	std::string m_explosion_sound;
 	std::string m_bullet_sound;
 };
 
