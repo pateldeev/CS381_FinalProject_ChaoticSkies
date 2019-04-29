@@ -1,0 +1,13 @@
+material transparent_target
+  {
+    technique
+    {
+      pass
+      {
+        texture_unit
+        {
+          transparent_target.png
+        }
+      } 
+    }
+  }

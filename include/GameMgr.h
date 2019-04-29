@@ -54,6 +54,8 @@ private:
 
 	float m_fire_cooldown;
 	std::list<Bullet*> m_bullets;
+
+	std::string m_flight_sound;
 };
 
 #endif

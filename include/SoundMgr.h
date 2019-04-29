@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <string>
 
+#include <unordered_map>
+
 #include "Mgr.h"
 
 #define MAX_AUDIO_BUFFERS 256
