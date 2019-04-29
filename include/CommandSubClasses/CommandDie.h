@@ -1,15 +1,21 @@
-/*
- * CommandDie.h
- *
- *  Created on: Apr 29, 2019
- *      Author: codyryan
- */
+#ifndef __COMMANDDIE_H_
+#define __COMMANDDIE_H_
 
-#ifndef INCLUDE_COMMANDSUBCLASSES_COMMANDDIE_H_
-#define INCLUDE_COMMANDSUBCLASSES_COMMANDDIE_H_
+#include <OGRE/OgreVector3.h>
 
+#include "Command.h"
 
+class CommandDie: public Command {
+public:
+	CommandDie(Entity381 *parent);
+	virtual ~CommandDie(void);
 
+public:
+	virtual void Tick(float dt) override;
+	virtual void Init(void) override final;
 
+private:
+	float m_pitch_target;
+};
 
-#endif /* INCLUDE_COMMANDSUBCLASSES_COMMANDDIE_H_ */
+#endif

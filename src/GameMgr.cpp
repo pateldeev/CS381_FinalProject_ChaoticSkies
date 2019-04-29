@@ -33,6 +33,11 @@ void GameMgr::LoadLevel(void) {
 	MakeEntities();
 
 	m_engine->GetSoundMgr()->LoadAudio("assets/sounds/inflight.ogg", m_flight_sound);
+  if(m_engine->GetSoundMgr()->LoadAudio("assets/sounds/shooting.ogg", m_bullet_sound)){
+		std::cout << "LOADED " << std::endl;
+	}else{
+		std::cout << "NOT LOADED " << std::endl;
+	}
 	m_engine->GetSoundMgr()->LoadAudio("assets/sounds/shooting.ogg", m_bullet_sound);
 	m_engine->GetSoundMgr()->PlayAudio(m_flight_sound);
 }
@@ -41,7 +46,7 @@ void GameMgr::Tick(float dt) {
 	UpdateCamera(dt);
 	UpdateSelectedDesiredAtributes(dt);
 	HandleBulletsAndFiring(dt);
-	//std::cout << m_plane->GetRoll() << std::endl;
+//std::cout << m_plane->GetRoll() << std::endl;
 }
 
 void GameMgr::Stop(void) {
@@ -76,7 +81,7 @@ void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
 		return;
 	}
 
-	//handle tab selection
+//handle tab selection
 	if (key == OIS::KC_TAB) {
 		if (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT))
 			m_engine->GetEntityMgr()->AddNextUnselectedToGroup();
@@ -85,7 +90,7 @@ void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
 		return;
 	}
 
-	//handle 3D rotation of plane
+//handle 3D rotation of plane
 	if (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LCONTROL)) {
 		if (key == OIS::KC_UP && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_DOWN))
 			m_engine->GetEntityMgr()->StopSelectedPitch();
@@ -142,9 +147,9 @@ void GameMgr::MakeGround(void) {
 	groundNode->attachObject(groundEntity);
 	groundEntity->setCastShadows(false);
 	groundEntity->setMaterialName("OceanHLSL_GLSL");
-	//groundEntity->setMaterialName("Ocean2_HLSL_GLSL");
-	//groundEntity->setMaterialName("Ocean2_Cg");
-	//groundEntity->setMaterialName("NavyCg");
+//groundEntity->setMaterialName("Ocean2_HLSL_GLSL");
+//groundEntity->setMaterialName("Ocean2_Cg");
+//groundEntity->setMaterialName("NavyCg");
 }
 
 void GameMgr::MakeSky(void) {
@@ -160,32 +165,32 @@ void GameMgr::MakeLighting(void) {
 void GameMgr::MakeEntities(void) {
 	float change_x_per_object;
 
-	//create 3 carriers
+//create 3 carriers
 	change_x_per_object = 700.f;
 	for (unsigned int i = 0; i < 3; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::CarrierType, Ogre::Vector3(i * change_x_per_object, 0, -1000.f));
 
-	//create 4 frigates
+//create 4 frigates
 	change_x_per_object = 450.f;
 	for (unsigned int i = 0; i < 4; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::FrigateType, Ogre::Vector3(i * change_x_per_object, 0, -800.f));
 
-	//create 5 destroyers
+//create 5 destroyers
 	change_x_per_object = 250.f;
 	for (unsigned int i = 0; i < 5; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::DestroyerType, Ogre::Vector3(i * change_x_per_object, 0, -600.f));
 
-	//create 6 speedboats
+//create 6 speedboats
 	change_x_per_object = 200.f;
 	for (unsigned int i = 0; i < 6; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::SpeedBoatType, Ogre::Vector3(i * change_x_per_object, 0, -425.f));
 
-	//create 4 alienships
+//create 4 alienships
 	change_x_per_object = 250.f;
 	for (unsigned int i = 0; i < 4; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::AlienType, Ogre::Vector3(i * change_x_per_object, 0, -250.f));
 
-	//create 5 banshees - enemies
+//create 5 banshees - enemies
 	change_x_per_object = 450.f;
 	for (unsigned int i = 0; i < 5; ++i)
 		m_enemies.push_back(
@@ -193,15 +198,15 @@ void GameMgr::MakeEntities(void) {
 
 	m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(2500, 50, -50)));
 
-	//add main plane
+//add main plane
 	m_plane = m_camera_following = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(18, 50, -50));
 	m_plane->SetSpeedDesired(60);
 
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1);	//sets selection
 
-	//Ogre::ParticleSystem* fireworks = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Fireworks");
-	//Ogre::SceneNode* fireworks_node = m_camera_following->GetOgreSceneNode()->createChildSceneNode("fireworks");
-	//fireworks_node->attachObject(fireworks);
+//Ogre::ParticleSystem* fireworks = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Fireworks");
+//Ogre::SceneNode* fireworks_node = m_camera_following->GetOgreSceneNode()->createChildSceneNode("fireworks");
+//fireworks_node->attachObject(fireworks);
 }
 
 void GameMgr::UpdateSelectedDesiredAtributes(float dt) {
@@ -303,13 +308,16 @@ void GameMgr::HandleBulletsAndFiring(float dt) {
 		}
 	}
 
-	//handle firing
+//handle firing
 	m_fire_cooldown -= dt;
 	if (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_SPACE) && m_fire_cooldown < 0) {
 		m_bullets.push_front(new Bullet(m_engine, m_plane->GetPosition() + 20 * m_plane->GetDirection(), m_plane->GetDirection()));
 		//std::cout << m_plane->GetDirection() << std::endl;
 		m_engine->GetSoundMgr()->PlayAudio(m_bullet_sound);
 		m_fire_cooldown = 0.5;
+		m_engine->GetSoundMgr()->PauseAllAudio();
+		m_engine->GetSoundMgr()->PlayAudio(m_bullet_sound);
+		m_engine->GetSoundMgr()->ResumeAllAudio();
 	}
 }
 
