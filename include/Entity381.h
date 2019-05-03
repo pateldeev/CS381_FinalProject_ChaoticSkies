@@ -117,6 +117,8 @@ private:
 	friend class AspectPhysics2D;
 	friend class AspectPhysics3D;
 	friend class CommandRoll;
+	friend class CommandPitch;
+	friend class CommandPatrol;
 
 private:
 	static unsigned int id_generator;

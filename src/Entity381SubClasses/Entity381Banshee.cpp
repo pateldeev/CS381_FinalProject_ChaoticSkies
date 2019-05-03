@@ -16,6 +16,6 @@ Entity381Banshee::~Entity381Banshee(void) {
 
 void Entity381Banshee::GetMeshOrientationsFixed(float &yaw, float &pitch, float &roll) const {
 	float temp = pitch;
-	pitch = roll;
+	pitch = -roll;
 	roll = temp;
 }

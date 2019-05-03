@@ -1,8 +1,5 @@
 #ifndef __COMMANDDIE_H_
 #define __COMMANDDIE_H_
-
-#include <OGRE/OgreVector3.h>
-
 #include "Command.h"
 
 class CommandDie: public Command {
@@ -11,7 +8,7 @@ public:
 	virtual ~CommandDie(void);
 
 public:
-	virtual void Tick(float dt) override;
+	virtual void Tick(float dt) override final;
 	virtual void Init(void) override final;
 
 private:

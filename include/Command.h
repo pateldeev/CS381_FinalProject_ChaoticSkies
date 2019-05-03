@@ -28,6 +28,8 @@ protected:
 
 #include "CommandSubClasses/CommandMoveTo.h"
 #include "CommandSubClasses/CommandRoll.h"
+#include "CommandSubClasses/CommandPitch.h"
 #include "CommandSubClasses/CommandDie.h"
+#include "CommandSubClasses/CommandPatrol.h"
 
 #endif

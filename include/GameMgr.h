@@ -38,6 +38,9 @@ private:
 	void MakeSky(void);
 	void MakeLighting(void);
 	void MakeEntities(void);
+	void MakeBoats(void);
+	void MakePlaneMain(void);
+	void MakeEnemies(void);
 
 	void UpdateSelectedDesiredAtributes(float dt);
 
