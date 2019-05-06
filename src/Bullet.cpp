@@ -12,10 +12,11 @@ Bullet::Bullet(Engine* engine, const Ogre::Vector3 &pos, const Ogre::Vector3 &di
 	m_engine(engine), m_id(id_generator++), m_name("Bullet_" + std::to_string(m_id)), m_active_time_left(active_time), m_ogre_entity(nullptr), m_scene_node(nullptr), m_direction(speed * direction.normalisedCopy()) {
 	m_ogre_entity = m_engine->GetGfxMgr()->GetOgreSceneManager()->createEntity("geosphere4500.mesh");
 
-	Ogre::MaterialPtr m = m_ogre_entity->getSubEntity(0)->getMaterial()->clone(m_name + "_mat");
-	m->setAmbient(1, 0, 0);
-	m->setDiffuse(1, 0, 0, 0);
-	m_ogre_entity->setMaterialName(m->getName());
+	if (m_id == 0) {
+		Ogre::MaterialPtr m = m_ogre_entity->getSubEntity(0)->getMaterial();
+		m->setAmbient(1, 0, 0);
+		m->setDiffuse(1, 0, 0, 0);
+	}
 
 	m_scene_node = m_engine->GetGfxMgr()->GetOgreSceneManager()->getRootSceneNode()->createChildSceneNode(m_name, pos);
 	m_scene_node->setScale(Ogre::Vector3(0.006));

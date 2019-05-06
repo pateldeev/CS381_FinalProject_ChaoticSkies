@@ -47,6 +47,7 @@ private:
 	OgreBites::InputContext m_input_context;
 	OgreBites::SdkTrayManager* m_tray_mgr;
 	Ogre::OverlaySystem* m_overlay_system;
+
 	OgreBites::Label* m_enemy_counter;
 	OgreBites::Label* m_levels;
 

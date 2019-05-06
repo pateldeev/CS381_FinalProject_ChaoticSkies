@@ -7,7 +7,7 @@
 #include "UIMgr.h"
 
 UIMgr::UIMgr(Engine* engine) :
-	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_enemy_counter(nullptr), m_health_bar(nullptr) {
+	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_enemy_counter(nullptr), m_levels(nullptr), m_health_bar(nullptr) {
 }
 
 UIMgr::~UIMgr(void) {
@@ -112,6 +112,7 @@ void UIMgr::buttonHit(OgreBites::Button *b) {
 		m_engine->GetGameMgr()->SetLevelsWon(0);
 
 		//Need to figure out a way to delete the next button completely. Right now it appears in the upper left part of the screen and causes an error when pressed
+		b->hide();
 		m_tray_mgr->clearTray(OgreBites::TL_BOTTOMRIGHT);
 		m_tray_mgr->hideBackdrop();
 	}
