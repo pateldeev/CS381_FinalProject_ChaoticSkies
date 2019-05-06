@@ -3,19 +3,28 @@
 Entity381Banshee::Entity381Banshee(Engine *engine, const std::string &mesh, const Ogre::Vector3 &pos) :
 	Entity381(engine, mesh, true, "assets/sounds/Selection_Banshee.ogg", pos) {
 
-	m_speed_max = 250.0f;
-	m_acceleration = 30.0f;
-	m_turn_rate = 45.0f;
+	m_speed_max = 250;
+	m_acceleration = 30;
 
-	m_pitch_rate_max = 12.f;
-	m_roll_rate_max = 12.f;
+	m_yaw_rate_max = 50;
+	m_pitch_rate_max = 12;
+	m_roll_rate_max = 12;
 }
 
 Entity381Banshee::~Entity381Banshee(void) {
 }
 
-void Entity381Banshee::GetMeshOrientationsFixed(float &yaw, float &pitch, float &roll) const {
-	float temp = pitch;
-	pitch = -roll;
-	roll = temp;
+Ogre::Vector3 Entity381Banshee::GetDirection(void) const {
+	return (GetOgreSceneNode()->_getDerivedOrientation() * Ogre::Vector3::UNIT_X).normalisedCopy();
+}
+
+Ogre::Quaternion Entity381Banshee::GetRotationWorld(void) const {
+	Ogre::Quaternion q = GetRotationLocal();
+	Ogre::Matrix3 m;
+	q.ToRotationMatrix(m);
+	Ogre::Radian y, p, r;
+	m.ToEulerAnglesYXZ(y, p, r);
+	m.FromEulerAnglesYXZ(y, r, -p);
+	q.FromRotationMatrix(m);
+	return m_rotation_mesh * q;
 }

@@ -4,9 +4,9 @@
 class GfxMgr;
 class InputMgr;
 class SoundMgr;
-class GameMgr;
-class EntityMgr;
 class UIMgr;
+class EntityMgr;
+class GameMgr;
 
 class Engine {
 public:
@@ -22,21 +22,22 @@ public:
 	GfxMgr* GetGfxMgr(void);
 	const GfxMgr* GetGfxMgr(void) const;
 
-	InputMgr* GetIngputMgr(void);
-	const InputMgr* GetIngputMgr(void) const;
+	InputMgr* GetInputMgr(void);
+	const InputMgr* GetInputMgr(void) const;
 
 	SoundMgr* GetSoundMgr(void);
 	const SoundMgr* GetSoundMgr(void) const;
 
-	GameMgr* GetGameMgr(void);
-	const GameMgr* GetGameMgr(void) const;
+	UIMgr* GetUIMgr(void);
+	const UIMgr* GetUIMgr(void) const;
 
 	EntityMgr* GetEntityMgr(void);
 	const EntityMgr* GetEntityMgr(void) const;
 
-	UIMgr* GetUIMgr(void);
-	const UIMgr* GetUIMgr(void) const;
+	GameMgr* GetGameMgr(void);
+	const GameMgr* GetGameMgr(void) const;
 
+public:
 	bool IsRunning(void) const;
 	void StopRunning(void);
 
@@ -47,9 +48,9 @@ private:
 	GfxMgr* m_gfx_mgr;
 	InputMgr* m_input_mgr;
 	SoundMgr* m_sound_mgr;
-	GameMgr* m_game_mgr;
-	EntityMgr* m_entity_mgr;
 	UIMgr* m_UI_mgr;
+	EntityMgr* m_entity_mgr;
+	GameMgr* m_game_mgr;
 
 	bool m_running;
 };

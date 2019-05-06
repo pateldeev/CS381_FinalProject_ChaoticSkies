@@ -1,5 +1,3 @@
-
-#if 1
 #include "Engine.h"
 
 int main(int argc, char *argv[]) {
@@ -13,14 +11,3 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 }
-#else
-#include <mutex>
-#include <iostream>
-using namespace std;
-
-static mutex m;
-
-int main(int argc, char *argv[]) {
-	cout << "Hello" << endl;
-}
-#endif

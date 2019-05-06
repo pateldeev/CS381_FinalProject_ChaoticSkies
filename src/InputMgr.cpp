@@ -9,7 +9,6 @@
 #include "UIMgr.h"
 
 #include "Entity381.h"
-#include "Utils.h"
 
 InputMgr::InputMgr(Engine *engine) :
 	Mgr(engine), m_ois_mgr(nullptr), m_keyboard(nullptr), m_mouse(nullptr), m_ray_query(nullptr) {
@@ -144,12 +143,10 @@ bool InputMgr::mousePressed(const OIS::MouseEvent &me, OIS::MouseButtonID id) {
 				} else {
 					if (m_keyboard->isKeyDown(OIS::KC_LCONTROL)) { //follow
 						std::cout << std::endl << "SUCCESS: Now having selected entities follow clicked entity!" << std::endl;
-						m_engine->GetEntityMgr()->AddFollowCommandToSelectedEntities(m_engine->GetEntityMgr()->GetEntity(entity_clicked),
-							!m_keyboard->isKeyDown(OIS::KC_LSHIFT));
+						m_engine->GetEntityMgr()->AddFollowCommandToSelectedEntities(m_engine->GetEntityMgr()->GetEntity(entity_clicked), !m_keyboard->isKeyDown(OIS::KC_LSHIFT));
 					} else { //intercept
 						std::cout << std::endl << "SUCCESS: Now having selected entities intercept clicked entity!" << std::endl;
-						m_engine->GetEntityMgr()->AddInterceptCommandToSelectedEntities(m_engine->GetEntityMgr()->GetEntity(entity_clicked),
-							!m_keyboard->isKeyDown(OIS::KC_LSHIFT));
+						m_engine->GetEntityMgr()->AddInterceptCommandToSelectedEntities(m_engine->GetEntityMgr()->GetEntity(entity_clicked), !m_keyboard->isKeyDown(OIS::KC_LSHIFT));
 					}
 				}
 			}

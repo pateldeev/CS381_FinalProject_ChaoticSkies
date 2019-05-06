@@ -9,8 +9,7 @@
 unsigned int Bullet::id_generator = 0;
 
 Bullet::Bullet(Engine* engine, const Ogre::Vector3 &pos, const Ogre::Vector3 &direction, float speed, float active_time) :
-	m_engine(engine), m_id(id_generator++), m_name("Bullet_" + IntToString(m_id)), m_active_time_left(active_time), m_ogre_entity(nullptr),
-	m_scene_node(nullptr), m_direction(speed * direction.normalisedCopy()) {
+	m_engine(engine), m_id(id_generator++), m_name("Bullet_" + std::to_string(m_id)), m_active_time_left(active_time), m_ogre_entity(nullptr), m_scene_node(nullptr), m_direction(speed * direction.normalisedCopy()) {
 	m_ogre_entity = m_engine->GetGfxMgr()->GetOgreSceneManager()->createEntity("geosphere4500.mesh");
 
 	Ogre::MaterialPtr m = m_ogre_entity->getSubEntity(0)->getMaterial()->clone(m_name + "_mat");
@@ -25,7 +24,7 @@ Bullet::Bullet(Engine* engine, const Ogre::Vector3 &pos, const Ogre::Vector3 &di
 
 Bullet::~Bullet(void) {
 	m_scene_node->getParentSceneNode()->detachObject(m_ogre_entity);
-		m_engine->GetGfxMgr()->GetOgreSceneManager()->destroySceneNode(m_scene_node->getName());
+	m_engine->GetGfxMgr()->GetOgreSceneManager()->destroySceneNode(m_scene_node->getName());
 }
 
 void Bullet::Tick(float dt) {

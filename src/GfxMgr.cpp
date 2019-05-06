@@ -58,9 +58,9 @@ void GfxMgr::Init(void) {
 	m_scene_mgr = m_root->createSceneManager(Ogre::ST_GENERIC);
 
 	m_camera = m_scene_mgr->createCamera("camera");
-	m_camera->setPosition(0, 0, 80);
-	m_camera->lookAt(0, 0, -300);
 	m_camera->setNearClipDistance(5);
+	m_camera->setPosition(Ogre::Vector3(0.f));
+	m_camera->lookAt(Ogre::Vector3::NEGATIVE_UNIT_Z);
 
 	Ogre::Viewport* vp = m_window->addViewport(m_camera);
 	vp->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
@@ -100,7 +100,7 @@ void GfxMgr::windowResized(Ogre::RenderWindow *rw) {
 
 	rw->getMetrics(width, height, depth, left, top);
 
-	const OIS::MouseState& ms = m_engine->GetIngputMgr()->GetMouseState();
+	const OIS::MouseState& ms = m_engine->GetInputMgr()->GetMouseState();
 	ms.width = width;
 	ms.height = height;
 }

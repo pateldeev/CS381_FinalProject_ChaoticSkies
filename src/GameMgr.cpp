@@ -11,10 +11,10 @@
 
 #include "Entity381.h"
 
-#include "Utils.h"
+float GameMgr::fire_cooldown = 0.4;
 
 GameMgr::GameMgr(Engine *engine) :
-	Mgr(engine), m_camera_node(nullptr), m_camera_following(nullptr), m_plane(nullptr), m_camera_manual_control(OIS::KC_UNASSIGNED), m_desired_control(OIS::KC_UNASSIGNED), m_fire_cooldown(0) {
+	Mgr(engine), m_camera_node(nullptr), m_camera_following(nullptr), m_plane(nullptr), m_camera_manual_control(OIS::KC_UNASSIGNED), m_desired_control(OIS::KC_UNASSIGNED), m_fire_cooldown(0), m_levels_won(0) {
 }
 
 GameMgr::~GameMgr(void) {
@@ -22,7 +22,6 @@ GameMgr::~GameMgr(void) {
 }
 
 void GameMgr::Init(void) {
-	m_flight_sound = "assets/sounds/inflight.ogg";
 	m_bullet_sound = "assets/sounds/shooting.ogg";
 	m_explosion_sound = "assets/sounds/Explosion.ogg";
 }
@@ -34,11 +33,8 @@ void GameMgr::LoadLevel(void) {
 	MakeLighting();
 	MakeEntities();
 
-	m_engine->GetSoundMgr()->LoadAudio(m_flight_sound, m_flight_sound);
 	m_engine->GetSoundMgr()->LoadAudio(m_explosion_sound, m_explosion_sound);
 	m_engine->GetSoundMgr()->LoadAudio(m_bullet_sound, m_bullet_sound);
-
-	m_engine->GetSoundMgr()->PlayAudio(m_flight_sound);
 }
 
 void GameMgr::Tick(float dt) {
@@ -49,6 +45,16 @@ void GameMgr::Tick(float dt) {
 	UpdateSelectedDesiredAtributes(dt);
 	HandleBulletsAndFiring(dt);
 	RemoveDeadEntities();
+
+	//std::cout << "Pitch " << std::fmod(m_plane->GetPitch(), 360) << " |||Roll " << std::fmod(m_plane->GetRoll(), 360) << std::endl;
+	//Ogre::Quaternion q = m_plane->GetRotationLocal();
+	//Ogre::Vector3 x, y, z;
+	//q.ToAxes(x, y, z);
+	//Ogre::Radian yaw = q.getYaw(), pitch = q.getPitch(), roll = q.getRoll();
+	//std::cout << q << "|" << x << "," << y << "," << z << "|||" << yaw.valueDegrees() << "," << pitch.valueDegrees() << "," << roll.valueDegrees() << std::endl;
+	//std::cout << m_plane->GetPitch() << std::endl;
+	//std::cout << m_plane->GetRoll() << std::endl;
+	//std::cout << x << "," << y << "," << z << std::endl;
 }
 
 void GameMgr::Stop(void) {
@@ -63,7 +69,7 @@ void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
 		return;
 	}
 
-	if (key == OIS::KC_R && m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LCONTROL)) {
+	if (key == OIS::KC_R && m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LCONTROL)) {
 		ResetLevel();
 		return;
 	}
@@ -82,9 +88,9 @@ void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
 		return;
 	}
 
-//handle tab selection
+	//handle tab selection
 	if (key == OIS::KC_TAB) {
-		if (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT))
+		if (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT))
 			m_engine->GetEntityMgr()->AddNextUnselectedToGroup();
 		else
 			m_engine->GetEntityMgr()->SelectNextEntity();
@@ -92,14 +98,14 @@ void GameMgr::InjectKeyPress(const OIS::KeyCode& key) {
 	}
 
 	//handle 3D rotation of plane
-	if (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LCONTROL)) {
-		if (key == OIS::KC_UP && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_DOWN))
+	if (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LCONTROL)) {
+		if (key == OIS::KC_UP && !m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_DOWN))
 			m_plane->AddCommand(new CommandPitch(m_plane, false), true);
-		else if (key == OIS::KC_DOWN && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_UP))
+		else if (key == OIS::KC_DOWN && !m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_UP))
 			m_plane->AddCommand(new CommandPitch(m_plane, true), true);
-		else if (key == OIS::KC_LEFT && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_RIGHT))
+		else if (key == OIS::KC_LEFT && !m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_RIGHT))
 			m_plane->AddCommand(new CommandRoll(m_plane, false), true);
-		else if (key == OIS::KC_RIGHT && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LEFT))
+		else if (key == OIS::KC_RIGHT && !m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LEFT))
 			m_plane->AddCommand(new CommandRoll(m_plane, true), false);
 	} else {
 		if (key == OIS::KC_UP)
@@ -125,13 +131,13 @@ void GameMgr::InjectKeyRelease(const OIS::KeyCode &key) {
 	if (key == m_camera_manual_control)
 		m_camera_manual_control = OIS::KC_UNASSIGNED;
 
-	if (key == OIS::KC_UP && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_DOWN))
+	if (key == OIS::KC_UP && !m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_DOWN))
 		m_engine->GetEntityMgr()->StopSelectedPitch();
-	else if (key == OIS::KC_DOWN && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_UP))
+	else if (key == OIS::KC_DOWN && !m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_UP))
 		m_engine->GetEntityMgr()->StopSelectedPitch();
-	else if (key == OIS::KC_LEFT && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_RIGHT))
+	else if (key == OIS::KC_LEFT && !m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_RIGHT))
 		m_engine->GetEntityMgr()->StopSelectedRoll();
-	else if (key == OIS::KC_RIGHT && !m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LEFT))
+	else if (key == OIS::KC_RIGHT && !m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LEFT))
 		m_engine->GetEntityMgr()->StopSelectedRoll();
 }
 
@@ -142,6 +148,14 @@ void GameMgr::CrashPlane(void) {
 
 void GameMgr::WinLevel(void) {
 	std::cout << "WON LEVEL" << std::endl;
+
+	++m_levels_won;
+	if (m_levels_won > 2) {
+		m_engine->GetUIMgr()->ShowBackdrop();
+		// needs a pauser
+		m_engine->StopRunning();
+	}
+
 	ResetLevel();
 }
 
@@ -150,12 +164,34 @@ void GameMgr::LoseLevel(void) {
 	ResetLevel();
 }
 
+void GameMgr::ResetLevel(void) {
+	for (Bullet* b : m_bullets)
+		delete b;
+	m_bullets.clear();
+
+	m_enemies.clear();
+	m_engine->GetEntityMgr()->DeleteAllEntities();
+
+	SetCameraStateToDefault();
+	MakeEntities();
+
+	m_engine->GetUIMgr()->PlayFlightSound();
+}
+
+int GameMgr::GetLevelsWon(void) const {
+	return m_levels_won;
+}
+
+void GameMgr::SetLevelsWon(int levels) {
+	m_levels_won = levels;
+}
+
 unsigned int GameMgr::GetNumEnemies(void) const {
 	return m_enemies.size();
 }
 
 void GameMgr::MakeCamera(void) {
-	m_engine->GetGfxMgr()->GetOgreCamera()->lookAt(Ogre::Vector3(0, 0, 0));
+	//m_engine->GetGfxMgr()->GetOgreCamera()->lookAt(Ogre::Vector3(0, 0, 0));
 	m_camera_node = m_engine->GetGfxMgr()->GetOgreSceneManager()->getRootSceneNode()->createChildSceneNode();
 	m_camera_node->attachObject(m_engine->GetGfxMgr()->GetOgreCamera());
 	SetCameraStateToDefault();
@@ -224,11 +260,13 @@ void GameMgr::MakeBoats(void) {
 
 void GameMgr::MakePlaneMain(void) {
 	//add main plane
-	m_plane = m_camera_following = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(18, 50, -50));
-	m_plane->SetSpeedDesired(60);
+	m_plane = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(18, 50, -50));
+	//m_plane = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(18, 50, -50));
 
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1);	//sets selection
 
+	m_plane->SetSpeedDesired(65);
+	m_camera_following = m_plane;
 }
 
 void GameMgr::MakeEnemies(void) {
@@ -274,25 +312,25 @@ void GameMgr::UpdateCamera(float dt) {
 		Ogre::Vector3 move_direction = Ogre::Vector3::ZERO;
 
 		if (m_camera_manual_control == OIS::KC_A)
-			move_direction.x -= (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
+			move_direction.x -= (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
 		else if (m_camera_manual_control == OIS::KC_D)
-			move_direction.x += (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
+			move_direction.x += (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
 		else if (m_camera_manual_control == OIS::KC_W)
-			move_direction.z -= (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
+			move_direction.z -= (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
 		else if (m_camera_manual_control == OIS::KC_S)
-			move_direction.z += (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
+			move_direction.z += (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
 		else if (m_camera_manual_control == OIS::KC_R)
-			move_direction.y += (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
+			move_direction.y += (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
 		else if (m_camera_manual_control == OIS::KC_F)
-			move_direction.y -= (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
+			move_direction.y -= (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? MOVE_FAST : MOVE_SLOW;
 		else if (m_camera_manual_control == OIS::KC_Q)
-			m_camera_node->yaw(dt * Ogre::Degree((m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? ROTATE_FAST : ROTATE_SLOW));
+			m_camera_node->yaw(dt * Ogre::Degree((m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? ROTATE_FAST : ROTATE_SLOW));
 		else if (m_camera_manual_control == OIS::KC_E)
-			m_camera_node->yaw(dt * -1 * Ogre::Degree((m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? ROTATE_FAST : ROTATE_SLOW));
+			m_camera_node->yaw(dt * -1 * Ogre::Degree((m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? ROTATE_FAST : ROTATE_SLOW));
 		else if (m_camera_manual_control == OIS::KC_Z)
-			m_camera_node->pitch(dt * Ogre::Degree((m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? ROTATE_FAST : ROTATE_SLOW));
+			m_camera_node->pitch(dt * Ogre::Degree((m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? ROTATE_FAST : ROTATE_SLOW));
 		else if (m_camera_manual_control == OIS::KC_X)
-			m_camera_node->pitch(dt * -1 * Ogre::Degree((m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? ROTATE_FAST : ROTATE_SLOW));
+			m_camera_node->pitch(dt * -1 * Ogre::Degree((m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_LSHIFT)) ? ROTATE_FAST : ROTATE_SLOW));
 		else
 			return;
 
@@ -306,22 +344,24 @@ void GameMgr::UpdateCamera(float dt) {
 		UpdateCameraToFollowEntity();
 }
 void GameMgr::UpdateCameraToFollowEntity(void) {
-
-#if 0
-	Ogre::Vector3 entity_size = m_camera_following->m_scene_node->_getWorldAABB().getSize();
-	Ogre::Vector3 entity_loc = m_camera_following->m_scene_node->_getDerivedPosition();
-	entity_loc.y += (1.6 * entity_size.y);
-	m_camera_node->setPosition(entity_loc);
-//m_camera_node->translate(0.f, 0.f, 1.5 * std::max(entity_size.x, entity_size.z), Ogre::Node::TransformSpace::TS_LOCAL);
-#else
 	m_camera_node->setPosition(m_camera_following->GetOgreSceneNode()->_getDerivedPosition());
-	m_camera_node->translate(Ogre::Vector3(-2, 4, 0), Ogre::Node::TransformSpace::TS_LOCAL);
-#endif
-
 	m_camera_node->resetOrientation();
-	m_camera_node->yaw(Ogre::Degree(FixAngle(m_camera_following->GetHeading() - 90)));
-	m_camera_node->pitch(Ogre::Degree(m_camera_following->GetPitch()));
-	m_camera_node->roll(Ogre::Degree(m_camera_following->GetRoll()));
+
+	if (m_camera_following->Is3D()) {
+		Ogre::Matrix3 m;
+		Ogre::Radian y, p, r;
+		m_camera_following->GetRotationLocal().ToRotationMatrix(m);
+		m_camera_node->yaw(Ogre::Degree(-90));
+		m.ToEulerAnglesYXZ(y, p, r);
+		m_camera_node->yaw(y);
+		m_camera_node->pitch(-p);
+		m_camera_node->roll(-r);
+	} else {
+		m_camera_node->yaw(Ogre::Degree(m_camera_following->GetHeading()));
+	}
+
+	m_camera_node->translate(Ogre::Vector3(0, 4, 32), Ogre::Node::TransformSpace::TS_LOCAL);
+
 }
 
 void GameMgr::HandleBulletsAndFiring(float dt) {
@@ -345,13 +385,13 @@ void GameMgr::HandleBulletsAndFiring(float dt) {
 		}
 	}
 
-//handle firing
+	//handle firing
 	m_fire_cooldown -= dt;
-	if (m_engine->GetIngputMgr()->IsKeyPressed(OIS::KC_SPACE) && m_fire_cooldown < 0) {
-		m_bullets.push_front(new Bullet(m_engine, m_plane->GetPosition() + 20 * m_plane->GetDirection(), m_plane->GetDirection()));
-		//std::cout << m_plane->GetDirection() << std::endl;
+	if (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_SPACE) && m_fire_cooldown < 0) {
+		Ogre::Vector3 d = m_plane->GetDirection();
+		m_bullets.push_front(new Bullet(m_engine, m_plane->GetPosition() + 15 * d, d));
 		m_engine->GetSoundMgr()->PlayAudio(m_bullet_sound);
-		m_fire_cooldown = 0.5;
+		m_fire_cooldown = fire_cooldown;
 		m_engine->GetSoundMgr()->PauseAllAudio();
 		m_engine->GetSoundMgr()->PlayAudio(m_bullet_sound);
 		m_engine->GetSoundMgr()->ResumeAllAudio();
@@ -371,19 +411,8 @@ void GameMgr::RemoveDeadEntities(void) {
 }
 
 void GameMgr::SetCameraStateToDefault(void) {
-	m_camera_node->resetToInitialState();
-	m_camera_node->translate(0, 200, 500, Ogre::Node::TransformSpace::TS_LOCAL);
+	m_camera_node->resetOrientation();
+	m_camera_node->setPosition(0, 50, 75);
 	m_camera_following = nullptr;
-}
-
-void GameMgr::ResetLevel(void) {
-	for (Bullet* b : m_bullets)
-		delete b;
-	m_bullets.clear();
-
-	m_enemies.clear();
-	m_engine->GetEntityMgr()->DeleteAllEntities();
-
-	MakeEntities();
 }
 

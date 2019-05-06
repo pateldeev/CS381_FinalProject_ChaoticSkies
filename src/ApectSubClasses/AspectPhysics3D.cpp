@@ -15,25 +15,11 @@ void AspectPhysics3D::Tick(float dt) {
 	m_entity->m_speed = ProgressValueTowards(m_entity->m_speed, m_entity->m_speed_desired, m_entity->m_acceleration * dt);
 	m_entity->m_speed = Clamp(m_entity->m_speed_min, m_entity->m_speed_max, m_entity->m_speed);
 
-	//std::cout << "P:" << m_entity->m_pitch << "|" << m_entity->m_desired_pitch << std::endl << "R:" << m_entity->m_roll << "|" << m_entity->m_desired_roll << std::endl;
+	m_entity->m_yaw_rate = -m_entity->m_yaw_rate_max * Ogre::Math::Sin(m_entity->GetRoll());// * Ogre::Math::Cos(m_entity->GetPitch());
 
-	//m_entity->m_desired_pitch = FixAngle(m_entity->m_desired_pitch);
-	//m_entity->m_pitch = ProgressAngleTowardsDesired(m_entity->m_pitch, m_entity->m_desired_pitch, 10 * dt);
-	//m_entity->m_desired_roll = FixAngle(m_entity->m_desired_roll);
-	//m_entity->m_roll = ProgressAngleTowardsDesired(m_entity->m_roll, m_entity->m_desired_roll, 10 * dt);
-	m_entity->m_pitch += m_entity->m_pitch_rate_current * dt;
-	m_entity->m_roll += m_entity->m_roll_rate_current * dt;
+	m_entity->m_rotation = Ogre::Quaternion(m_entity->m_yaw_rate * dt, Ogre::Vector3::UNIT_Y) * m_entity->GetRotationLocal() * Ogre::Quaternion(m_entity->m_roll_rate * dt, Ogre::Vector3::UNIT_Z)
+		* Ogre::Quaternion(m_entity->m_pitch_rate * dt, Ogre::Vector3::UNIT_X);
 
-	m_entity->m_heading_desired += Ogre::Math::Sin(Ogre::Degree(m_entity->m_roll)) * dt * m_entity->m_turn_rate;
-	m_entity->m_heading_desired = FixAngle(m_entity->m_heading_desired);
-
-	m_entity->m_heading = ProgressAngleTowardsDesired(m_entity->m_heading, m_entity->m_heading_desired, m_entity->m_turn_rate * dt);
-
-	Ogre::Vector3 v(Ogre::Math::Cos(Ogre::Degree(m_entity->m_heading)), 0.f, -Ogre::Math::Sin(Ogre::Degree(m_entity->m_heading)));
-	float vel_y = Ogre::Math::Sin(Ogre::Degree(m_entity->m_pitch)) * m_entity->m_speed;
-	float v_len = Ogre::Math::Cos(Ogre::Degree(m_entity->m_pitch)) * m_entity->m_speed;
-	m_entity->m_velocity = v_len * v.normalisedCopy();
-	m_entity->m_velocity.y = vel_y;
-
+	m_entity->m_velocity = m_entity->m_speed * m_entity->GetDirection();
 	m_entity->m_position += m_entity->m_velocity * dt;
 }

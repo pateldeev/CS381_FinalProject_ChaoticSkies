@@ -28,6 +28,10 @@ public:
 	void CrashPlane(void);
 	void WinLevel(void);
 	void LoseLevel(void);
+	void ResetLevel(void);
+
+	int GetLevelsWon(void) const;
+	void SetLevelsWon(int levels);
 
 public:
 	unsigned int GetNumEnemies(void) const;
@@ -52,7 +56,6 @@ private:
 
 	void SetCameraStateToDefault(void);
 
-	void ResetLevel(void);
 private:
 	Ogre::SceneNode* m_camera_node;
 	Entity381* m_camera_following;
@@ -67,9 +70,13 @@ private:
 	float m_fire_cooldown;
 	std::list<Bullet*> m_bullets;
 
-	std::string m_flight_sound;
 	std::string m_explosion_sound;
 	std::string m_bullet_sound;
+
+	int m_levels_won;
+
+private:
+	static float fire_cooldown;
 };
 
 #endif

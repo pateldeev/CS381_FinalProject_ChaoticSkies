@@ -12,7 +12,7 @@ public:
 	virtual void Init(void) override final;
 
 private:
-	float m_pitch_target;
+	float m_time_left;
 };
 
 #endif

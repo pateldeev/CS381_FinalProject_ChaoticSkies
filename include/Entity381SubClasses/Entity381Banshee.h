@@ -9,7 +9,8 @@ public:
 	virtual ~Entity381Banshee(void);
 
 public:
-	virtual void GetMeshOrientationsFixed(float &yaw, float &pitch, float &roll) const override final;
+	virtual Ogre::Vector3 GetDirection(void) const override final;
+	virtual Ogre::Quaternion GetRotationWorld(void) const override final;
 };
 
 #endif

@@ -13,8 +13,8 @@ public:
 	virtual void Init(void) override final;
 
 private:
-	float m_pitch_speed;
-	float m_pitch_target;
+	Ogre::Degree m_pitch_rate;
+	Ogre::Degree m_pitch_target;
 };
 
 #endif

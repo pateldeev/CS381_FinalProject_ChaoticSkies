@@ -5,7 +5,7 @@
 
 class CommandRoll: public Command {
 public:
-	CommandRoll(Entity381* parent, bool roll_right, float rool_rate = 400);
+	CommandRoll(Entity381* parent, bool roll_right, const Ogre::Degree &roll_rate = Ogre::Degree(400));
 	virtual ~CommandRoll(void);
 
 public:
@@ -13,8 +13,8 @@ public:
 	virtual void Init(void) override final;
 
 private:
-	float m_roll_speed;
-	float m_roll_target;
+	Ogre::Degree m_roll_rate;
+	Ogre::Degree m_roll_target;
 };
 
 #endif
