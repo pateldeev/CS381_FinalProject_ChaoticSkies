@@ -10,7 +10,11 @@ public:
 
 public:
 	virtual Ogre::Vector3 GetDirection(void) const override final;
-	virtual Ogre::Quaternion GetRotationWorld(void) const override final;
+
+	virtual Ogre::Quaternion GetRotationLocal(void) const override final;
+
+protected:
+	virtual void UpdateRotation(float dt) override final;
 };
 
 #endif

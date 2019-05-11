@@ -15,10 +15,9 @@ void AspectPhysics3D::Tick(float dt) {
 	m_entity->m_speed = ProgressValueTowards(m_entity->m_speed, m_entity->m_speed_desired, m_entity->m_acceleration * dt);
 	m_entity->m_speed = Clamp(m_entity->m_speed_min, m_entity->m_speed_max, m_entity->m_speed);
 
-	m_entity->m_yaw_rate = -m_entity->m_yaw_rate_max * Ogre::Math::Sin(m_entity->GetRoll());// * Ogre::Math::Cos(m_entity->GetPitch());
+	m_entity->m_yaw_rate = -m_entity->m_yaw_rate_max * Ogre::Math::Sin(m_entity->GetRoll()); // * Ogre::Math::Cos(m_entity->GetPitch());
 
-	m_entity->m_rotation = Ogre::Quaternion(m_entity->m_yaw_rate * dt, Ogre::Vector3::UNIT_Y) * m_entity->GetRotationLocal() * Ogre::Quaternion(m_entity->m_roll_rate * dt, Ogre::Vector3::UNIT_Z)
-		* Ogre::Quaternion(m_entity->m_pitch_rate * dt, Ogre::Vector3::UNIT_X);
+	m_entity->UpdateRotation(dt);
 
 	m_entity->m_velocity = m_entity->m_speed * m_entity->GetDirection();
 	m_entity->m_position += m_entity->m_velocity * dt;

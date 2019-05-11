@@ -38,7 +38,7 @@ void GameMgr::LoadLevel(void) {
 }
 
 void GameMgr::Tick(float dt) {
-	if (!m_plane->IsAlive())
+	if (!m_plane->IsAlive() || m_plane->GetPosition().y <= 5)
 		LoseLevel();
 
 	UpdateCamera(dt);
@@ -52,8 +52,7 @@ void GameMgr::Tick(float dt) {
 	//q.ToAxes(x, y, z);
 	//Ogre::Radian yaw = q.getYaw(), pitch = q.getPitch(), roll = q.getRoll();
 	//std::cout << q << "|" << x << "," << y << "," << z << "|||" << yaw.valueDegrees() << "," << pitch.valueDegrees() << "," << roll.valueDegrees() << std::endl;
-	//std::cout << m_plane->GetPitch() << std::endl;
-	//std::cout << m_plane->GetRoll() << std::endl;
+	//std::cout << m_plane->GetYaw() << "|" << m_plane->GetPitch() << "|" << m_plane->GetRoll() << std::endl;
 	//std::cout << x << "," << y << "," << z << std::endl;
 }
 
@@ -176,6 +175,7 @@ void GameMgr::ResetLevel(void) {
 	MakeEntities();
 
 	m_engine->GetUIMgr()->PlayFlightSound();
+	m_engine->GetUIMgr()->SetHealthBarPercentage(100);
 }
 
 int GameMgr::GetLevelsWon(void) const {
@@ -265,7 +265,7 @@ void GameMgr::MakePlaneMain(void) {
 
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1);	//sets selection
 
-	m_plane->SetSpeedDesired(65);
+	m_plane->SetSpeedDesired(70);
 	m_camera_following = m_plane;
 }
 
@@ -276,7 +276,7 @@ void GameMgr::MakeEnemies(void) {
 		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(i * change_x_per_object, 100, -100.f)));
 
 	for (Entity381* e : m_enemies)
-		e->AddCommand(new CommandPatrol(e, e->GetPosition()));
+		e->AddCommand(new CommandPatrol(e, m_plane, e->GetPosition()));
 }
 
 void GameMgr::UpdateSelectedDesiredAtributes(float dt) {
@@ -412,7 +412,14 @@ void GameMgr::RemoveDeadEntities(void) {
 
 void GameMgr::SetCameraStateToDefault(void) {
 	m_camera_node->resetOrientation();
+
+#if 0
 	m_camera_node->setPosition(0, 50, 75);
+#else
+	m_camera_node->setPosition(0, 1000, 0);
+	m_camera_node->pitch(Ogre::Degree(-90));
+#endif
+
 	m_camera_following = nullptr;
 }
 

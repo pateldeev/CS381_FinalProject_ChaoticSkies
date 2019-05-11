@@ -46,18 +46,21 @@ public:
 	void YawRight(void);
 	void YawStop(void);
 	Ogre::Degree GetYaw(void) const;
+	Ogre::Degree GetYawRate(void) const;
 
 	void Pitch(const Ogre::Degree &rate, bool override_max = false);
 	void PitchUp(void);
 	void PitchDown(void);
 	void PitchStop(void);
 	Ogre::Degree GetPitch(void) const;
+	Ogre::Degree GetPitchRate(void) const;
 
 	void Roll(const Ogre::Degree &rate, bool override_max = false);
 	void RollLeft(void);
 	void RollRight(void);
 	void RollStop(void);
 	Ogre::Degree GetRoll(void) const;
+	Ogre::Degree GetRollRate(void) const;
 
 	Ogre::SceneNode* GetOgreSceneNode(void);
 	const Ogre::SceneNode* GetOgreSceneNode(void) const;
@@ -66,8 +69,8 @@ public:
 	Ogre::Vector3 GetVelocity(void) const;
 	virtual Ogre::Vector3 GetDirection(void) const;
 
-	Ogre::Quaternion GetRotationLocal(void) const;
-	virtual Ogre::Quaternion GetRotationWorld(void) const;
+	virtual Ogre::Quaternion GetRotationLocal(void) const;
+	Ogre::Quaternion GetRotationWorld(void) const;
 
 	const AspectUnitAI* GetAIAspect(void) const;
 
@@ -83,6 +86,8 @@ public:
 protected:
 	Entity381(Engine *engine, const std::string &mesh, bool apply_3Dphysics = false, const std::string &selection_sound_file = "", const Ogre::Vector3 &pos = Ogre::Vector3::ZERO, const Ogre::Quaternion &mesh_rotatation = Ogre::Quaternion::IDENTITY);
 
+	virtual void UpdateRotation(float dt);
+
 protected:
 	float m_speed_min;
 	float m_speed_max;
@@ -95,6 +100,7 @@ protected:
 	Ogre::Degree m_yaw_rate_max;
 	Ogre::Degree m_pitch_rate_max;
 	Ogre::Degree m_roll_rate_max;
+	Ogre::Quaternion m_rotation;
 	const Ogre::Quaternion m_rotation_mesh;
 
 private:
@@ -118,8 +124,6 @@ private:
 	Ogre::Degree m_yaw_rate;
 	Ogre::Degree m_pitch_rate;
 	Ogre::Degree m_roll_rate;
-
-	Ogre::Quaternion m_rotation;
 
 	Ogre::Entity* m_ogre_entity;
 	Ogre::SceneNode* m_scene_node;

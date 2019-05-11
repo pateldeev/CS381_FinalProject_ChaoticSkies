@@ -7,7 +7,7 @@
 #include "UIMgr.h"
 
 UIMgr::UIMgr(Engine* engine) :
-	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_enemy_counter(nullptr), m_levels(nullptr), m_health_bar(nullptr) {
+	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_next_button(nullptr), m_enemy_counter(nullptr), m_levels(nullptr), m_health_bar(nullptr) {
 }
 
 UIMgr::~UIMgr(void) {
@@ -29,7 +29,7 @@ void UIMgr::LoadLevel(void) {
 
 	m_tray_mgr->showBackdrop("Intro/UI");
 
-	m_tray_mgr->createButton(OgreBites::TL_BOTTOMRIGHT, "Next button", "next");
+	m_next_button = m_tray_mgr->createButton(OgreBites::TL_BOTTOMRIGHT, "Next_Button", "next");
 
 	m_tray_mgr->createButton(OgreBites::TL_BOTTOMLEFT, "Credits", "View Credits");
 	m_tray_mgr->createButton(OgreBites::TL_BOTTOMLEFT, "Exit", "Exit Game!");
@@ -44,9 +44,15 @@ void UIMgr::LoadLevel(void) {
 }
 
 void UIMgr::Tick(float dt) {
+#if 0
+	static int x = 0;
+	if(++x == 1)
+	buttonHit(m_next_button);
+#endif
+
 	m_tray_mgr->refreshCursor();
 
-	if (m_health_bar && GetHealthPercentage() <= 0)
+	if (m_health_bar && GetHealthPercentage() <= 0.1)
 		m_engine->GetGameMgr()->CrashPlane();
 
 	m_enemy_counter->setCaption("Enemy Counter: " + std::to_string(m_engine->GetGameMgr()->GetNumEnemies()));
@@ -69,11 +75,18 @@ bool UIMgr::InjectMouseRelease(const OIS::MouseEvent &me, OIS::MouseButtonID id)
 }
 
 float UIMgr::GetHealthPercentage(void) const {
-	return m_health_bar->getProgress();
+	if (!m_health_bar)
+		return -1;
+	return 100 * m_health_bar->getProgress();
 }
 
-void UIMgr::SetHealthBarPercentage(float percentage) {
-	m_health_bar->setProgress(percentage);
+void UIMgr::SetHealthBarPercentage(float percentage, bool accumulate) {
+	if (!m_health_bar)
+		return;
+	if (accumulate)
+		m_health_bar->setProgress(m_health_bar->getProgress() + percentage / 100);
+	else
+		m_health_bar->setProgress(percentage / 100);
 }
 
 void UIMgr::PlayFlightSound(void) {
@@ -97,7 +110,7 @@ void UIMgr::buttonHit(OgreBites::Button *b) {
 		m_engine->StopRunning();
 	}
 
-	else if (b->getName() == "Next button") {
+	else if (b->getName() == "Next_Button") {
 		m_engine->GetGameMgr()->WinLevel();
 
 		m_engine->GetSoundMgr()->StopAllAudio();

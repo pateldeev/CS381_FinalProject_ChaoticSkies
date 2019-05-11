@@ -96,7 +96,7 @@ void Entity381::SetHeadingDesired(float heading, bool accumulate) {
 }
 
 void Entity381::Yaw(const Ogre::Degree &rate, bool override_max) {
-	m_yaw_rate = (override_max) ? rate : Ogre::Math::Clamp(-m_yaw_rate_max, m_yaw_rate_max, rate);
+	m_yaw_rate = (override_max) ? rate : Ogre::Math::Clamp(rate, -m_yaw_rate_max, m_yaw_rate_max);
 }
 
 void Entity381::YawLeft(void) {
@@ -112,11 +112,15 @@ void Entity381::YawStop(void) {
 }
 
 Ogre::Degree Entity381::GetYaw(void) const {
-	return m_rotation.getYaw();
+	return GetRotationLocal().getYaw();
+}
+
+Ogre::Degree Entity381::GetYawRate(void) const {
+	return m_yaw_rate;
 }
 
 void Entity381::Pitch(const Ogre::Degree &rate, bool override_max) {
-	m_pitch_rate = (override_max) ? rate : Ogre::Math::Clamp(-m_pitch_rate_max, m_pitch_rate_max, rate);
+	m_pitch_rate = (override_max) ? rate : Ogre::Math::Clamp(rate, -m_pitch_rate_max, m_pitch_rate_max);
 }
 
 void Entity381::PitchUp(void) {
@@ -132,11 +136,15 @@ void Entity381::PitchStop(void) {
 }
 
 Ogre::Degree Entity381::GetPitch(void) const {
-	return m_rotation.getPitch();
+	return GetRotationLocal().getPitch();
+}
+
+Ogre::Degree Entity381::GetPitchRate(void) const {
+	return m_pitch_rate;
 }
 
 void Entity381::Roll(const Ogre::Degree &rate, bool override_max) {
-	m_roll_rate = (override_max) ? rate : Ogre::Math::Clamp(-m_roll_rate_max, m_roll_rate_max, rate);
+	m_roll_rate = (override_max) ? rate : Ogre::Math::Clamp(rate, -m_roll_rate_max, m_roll_rate_max);
 }
 
 void Entity381::RollLeft(void) {
@@ -152,7 +160,11 @@ void Entity381::RollStop(void) {
 }
 
 Ogre::Degree Entity381::GetRoll(void) const {
-	return m_rotation.getRoll();
+	return GetRotationLocal().getRoll();
+}
+
+Ogre::Degree Entity381::GetRollRate(void) const {
+	return m_roll_rate;
 }
 
 Ogre::SceneNode* Entity381::GetOgreSceneNode(void) {
@@ -230,8 +242,8 @@ bool Entity381::Is3D(void) const {
 }
 
 Entity381::Entity381(Engine *engine, const std::string &mesh, bool apply_3Dphysics, const std::string &selection_sound_file, const Ogre::Vector3 &pos, const Ogre::Quaternion &mesh_rotatation) :
-	m_speed_min(0), m_speed_max(0), m_acceleration(0), m_turn_rate(0), m_yaw_rate_max(0), m_pitch_rate_max(0), m_roll_rate_max(0), m_rotation_mesh(mesh_rotatation), m_engine(engine), m_id(id_generator++), m_name(mesh + std::to_string(m_id)),
-	m_mesh_file(mesh), m_selection_sound(selection_sound_file), m_speed(0), m_speed_desired(0), m_heading(0), m_heading_desired(0), m_yaw_rate(0), m_pitch_rate(0), m_roll_rate(0), m_rotation(Ogre::Quaternion::IDENTITY), m_ogre_entity(nullptr),
+	m_speed_min(0), m_speed_max(0), m_acceleration(0), m_turn_rate(0), m_yaw_rate_max(0), m_pitch_rate_max(0), m_roll_rate_max(0), m_rotation(Ogre::Quaternion::IDENTITY), m_rotation_mesh(mesh_rotatation), m_engine(engine), m_id(id_generator++),
+	m_name(mesh + std::to_string(m_id)), m_mesh_file(mesh), m_selection_sound(selection_sound_file), m_speed(0), m_speed_desired(0), m_heading(0), m_heading_desired(0), m_yaw_rate(0), m_pitch_rate(0), m_roll_rate(0), m_ogre_entity(nullptr),
 	m_scene_node(nullptr), m_smoke_node(nullptr), m_position(pos), m_velocity(0.f), m_AI_aspect(nullptr), m_is_alive(true), m_is3D(apply_3Dphysics) {
 
 	m_ogre_entity = m_engine->GetGfxMgr()->GetOgreSceneManager()->createEntity(m_mesh_file);
@@ -248,3 +260,8 @@ Entity381::Entity381(Engine *engine, const std::string &mesh, bool apply_3Dphysi
 
 	m_aspects.push_back(new AspectRenderable(this));
 }
+
+void Entity381::UpdateRotation(float dt) {
+	m_rotation = Ogre::Quaternion(GetYawRate() * dt, Ogre::Vector3::UNIT_Y) * m_rotation * Ogre::Quaternion(GetRollRate() * dt, Ogre::Vector3::UNIT_Z) * Ogre::Quaternion(GetPitchRate() * dt, Ogre::Vector3::UNIT_X);
+}
+
