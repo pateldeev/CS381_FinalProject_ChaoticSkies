@@ -35,6 +35,8 @@ public:
 public:
 	float GetHealthPercentage(void) const;
 	void SetHealthBarPercentage(float percentage, bool accumulate = false);
+	OgreBites::SdkTrayManager* GetTrayMgr(void);
+	OgreBites::Button* GetRestartButton(void);
 
 	void PlayFlightSound(void);
 
@@ -42,6 +44,7 @@ public:
 
 private:
 	virtual void buttonHit(OgreBites::Button *b) override final;
+	 void buttonHide(OgreBites::Button *b);
 
 private:
 	OgreBites::InputContext m_input_context;
@@ -49,9 +52,12 @@ private:
 	Ogre::OverlaySystem* m_overlay_system;
 
 	OgreBites::Button* m_start_button;
+	OgreBites::Button* m_restart_button;
 
 	OgreBites::Label* m_enemy_counter;
 	OgreBites::Label* m_levels;
+	OgreBites::Label* m_position;
+	OgreBites::Label* m_enemy_position;
 
 	OgreBites::ProgressBar* m_health_bar;
 

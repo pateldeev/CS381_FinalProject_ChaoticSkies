@@ -14,7 +14,7 @@ void CommandPitch::Tick(float dt) {
 	if (m_running) {
 		m_parent->Pitch(m_pitch_rate, true);
 
-		if (Ogre::Math::Abs(m_parent->GetPitch() - m_pitch_target).valueDegrees() < 1) {
+		if (Ogre::Math::Abs(m_parent->GetPitch() - m_pitch_target).valueDegrees() < 5) {
 			m_running = false;
 			m_parent->PitchStop();
 		}
@@ -23,7 +23,7 @@ void CommandPitch::Tick(float dt) {
 
 void CommandPitch::Init(void) {
 	Ogre::Degree pitch_current = m_parent->GetPitch();
-	m_pitch_target = pitch_current + Ogre::Degree((m_pitch_rate.valueDegrees() > 0) ? 180 : -180);
+	m_pitch_target = pitch_current + Ogre::Degree((m_pitch_rate.valueDegrees() > 0) ? 185 : -185);
 	FixAngle(m_pitch_target);
 	m_parent->Pitch(m_pitch_target, true);
 

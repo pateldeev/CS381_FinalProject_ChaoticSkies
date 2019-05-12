@@ -14,7 +14,7 @@ void CommandRoll::Tick(float dt) {
 	if (m_running) {
 		m_parent->Roll(m_roll_rate, true);
 
-		if (Ogre::Math::Abs(m_parent->GetRoll() - m_roll_target).valueDegrees() < 1) {
+		if (Ogre::Math::Abs(m_parent->GetRoll() - m_roll_target).valueDegrees() < 5) {
 			m_running = false;
 			m_parent->RollStop();
 		}
@@ -23,7 +23,7 @@ void CommandRoll::Tick(float dt) {
 
 void CommandRoll::Init(void) {
 	Ogre::Degree roll_current = m_parent->GetRoll();
-	m_roll_target = roll_current + Ogre::Degree((m_roll_rate.valueDegrees() > 0) ? 180 : -180);
+	m_roll_target = roll_current + Ogre::Degree((m_roll_rate.valueDegrees() > 0) ? 185 : -185);
 	FixAngle(m_roll_target);
 	m_parent->Roll(m_roll_rate, true);
 

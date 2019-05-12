@@ -33,14 +33,20 @@ void UIMgr::LoadLevel(void) {
 
 	m_tray_mgr->createButton(OgreBites::TL_BOTTOMLEFT, "Credits", "View Credits");
 	m_tray_mgr->createButton(OgreBites::TL_BOTTOMLEFT, "Exit", "Exit Game!");
+	m_restart_button = m_tray_mgr->createButton(OgreBites::TL_BOTTOMRIGHT, "Restart", "Restart Game");
+	m_restart_button->hide();
+
+
 	m_enemy_counter = m_tray_mgr->createLabel(OgreBites::TL_BOTTOMLEFT, "EnemyCounter", "Enemy Counter: ");
 	m_levels = m_tray_mgr->createLabel(OgreBites::TL_BOTTOMLEFT, "LevelsWonCounter", "Levels won: ");
 	m_tray_mgr->getCursorImage()->hide();
+
 
 	m_engine->GetSoundMgr()->LoadAudio(m_intro_music, m_intro_music);
 	m_engine->GetSoundMgr()->LoadAudio(m_flight_sound, m_flight_sound);
 
 	m_engine->GetSoundMgr()->PlayAudio(m_intro_music);
+	//m_tray_mgr->showFrameStats(OgreBites::TL_TOPRIGHT);
 }
 
 void UIMgr::Tick(float dt) {
@@ -124,4 +130,19 @@ void UIMgr::buttonHit(OgreBites::Button *b) {
 		m_tray_mgr->clearTray(OgreBites::TL_BOTTOMRIGHT);
 		m_tray_mgr->hideBackdrop();
 	}
+	else if(b->getName() == "Restart"){
+		m_engine->GetGameMgr()->ResetLevel();
+		m_tray_mgr->hideBackdrop();
+	}
+}
+void UIMgr::buttonHide(OgreBites::Button *b){
+	b->hide();
+}
+
+OgreBites::SdkTrayManager* UIMgr::GetTrayMgr(void){
+	return m_tray_mgr;
+}
+
+OgreBites::Button* UIMgr::GetRestartButton(void){
+	return m_restart_button;
 }
