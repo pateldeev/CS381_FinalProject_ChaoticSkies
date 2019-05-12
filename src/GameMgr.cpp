@@ -56,7 +56,7 @@ void GameMgr::Tick(float dt) {
 	//std::cout << m_plane->GetYaw() << "|" << m_plane->GetPitch() << "|" << m_plane->GetRoll() << std::endl;
 	//std::cout << x << "," << y << "," << z << std::endl;
 
-	std::cout << "Enemies Following: " << m_enemies_following << std::endl;
+	//std::cout << "Enemies Following: " << m_enemies_following << std::endl;
 }
 
 void GameMgr::Stop(void) {
@@ -150,21 +150,19 @@ void GameMgr::CrashPlane(void) {
 
 void GameMgr::WinLevel(void) {
 	std::cout << "WON LEVEL" << std::endl;
-
+	m_engine->GetUIMgr()->ShowBackdrop();
 	m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("levelcomplete/UI");
 
 	if (++m_levels_won > 2) {
 		m_engine->GetUIMgr()->ShowBackdrop();
-		// needs a pauser
-		m_engine->StopRunning();
-	} else {
-		m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("Credits/UI");
 		m_engine->GetSoundMgr()->StopAllAudio();
 		m_engine->GetSoundMgr()->PlayAudio(m_outro_sound);
-		//m_engine->StopRunning();
+		m_engine->GetUIMgr()->GetTrayMgr()->hideTrays();
+		m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("Credits/UI");
+	} else {
+		ResetLevel();
 	}
 
-	ResetLevel();
 }
 
 void GameMgr::LoseLevel(void) {
@@ -175,7 +173,7 @@ void GameMgr::LoseLevel(void) {
 	m_engine->GetUIMgr()->GetRestartButton()->show();
 
 	m_engine->GetUIMgr()->GetTrayMgr()->moveWidgetToTray(m_engine->GetUIMgr()->GetRestartButton(), OgreBites::TL_BOTTOMRIGHT);
-//m_engine->GetUIMgr()->GetRestartButton()->getOverlayElement()->setPosition(0.8,0.8);
+
 
 }
 
@@ -293,7 +291,7 @@ void GameMgr::MakePlaneMain(int speed) {
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1);	//sets selection
 
 	m_plane->SetSpeedDesired(speed);
-//m_camera_following = m_plane;
+m_camera_following = m_plane;
 }
 
 void GameMgr::MakeEnemies(int level) {
@@ -443,11 +441,10 @@ void GameMgr::RemoveDeadEntities(void) {
 		if (!(*i)->IsAlive()) {
 			m_engine->GetEntityMgr()->DeleteEntity(*i);
 			i = m_enemies.erase(i);
-			m_engine->GetUIMgr()->GetTrayMgr()->hideBackdrop();
 		}
 	}
 
-	if (m_enemies.empty())
+	if (m_enemies.empty() && m_levels_won <= 2)
 		WinLevel();
 }
 
