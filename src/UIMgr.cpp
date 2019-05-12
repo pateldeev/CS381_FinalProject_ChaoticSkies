@@ -44,7 +44,7 @@ void UIMgr::LoadLevel(void) {
 }
 
 void UIMgr::Tick(float dt) {
-#if 0
+#if 1
 	static int x = 0;
 	if(++x == 1)
 	buttonHit(m_start_button);

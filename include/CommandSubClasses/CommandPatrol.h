@@ -5,13 +5,13 @@
 
 #include "Command.h"
 
-#define SHOW_TARGET 1
+#define SHOW_TARGET 0
 
 #include "Bullet.h"
 
 class CommandPatrol: public Command {
 public:
-	CommandPatrol(Entity381* parent, Entity381* main_plane, const Ogre::Vector3 &center, const Ogre::Vector3 &extent = Ogre::Vector3(500, 15, 500), int patrol_speed = 55);
+	CommandPatrol(Entity381* parent, const Entity381* main_plane, const Ogre::Vector3 &center, const Ogre::Vector3 &extent = Ogre::Vector3(500, 15, 500), int patrol_speed = 55);
 	virtual ~CommandPatrol(void);
 
 public:
@@ -24,6 +24,8 @@ private:
 	void UpdateTargetIfNecessary(void);
 	void UpdateTarget(const Ogre::Vector3 &target);
 
+	bool IsPlaneInPatrolZone(void) const;
+
 	void UpdateBulletsAndFiring(float dt);
 
 private:
@@ -35,7 +37,8 @@ private:
 	Ogre::Vector3 m_target;
 	float m_new_target_time;
 
-	Entity381* m_plane;
+	const Entity381* m_plane;
+	bool m_is_following;
 
 	std::list<Bullet*> m_bullets;
 	float m_firing_cooldown;

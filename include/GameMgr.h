@@ -30,11 +30,16 @@ public:
 	void LoseLevel(void);
 	void ResetLevel(void);
 
+public:
 	int GetLevelsWon(void) const;
 	void SetLevelsWon(int levels);
 
-public:
 	unsigned int GetNumEnemies(void) const;
+	unsigned int GetNumEnemiesFollowing(void) const;
+
+	//only should be called by command patrol
+	void AddEnemyFollowing(void);
+	void RemoveEnemyFollowing(void);
 
 private:
 	void MakeCamera(void);
@@ -62,6 +67,7 @@ private:
 
 	Entity381* m_plane;
 	std::list<Entity381*> m_enemies;
+	unsigned int m_enemies_following;
 
 	//used to keep track of keys pressed for manual camera movement and changing desired
 	OIS::KeyCode m_camera_manual_control;

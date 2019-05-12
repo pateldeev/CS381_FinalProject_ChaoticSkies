@@ -71,31 +71,31 @@ public:
 	void MakeBoundingBoxGreen(void) {
 		CreateNewMatertials();
 		if (!mWireBoundingBox)
-			mWireBoundingBox = new Ogre::WireBoundingBox();
+		mWireBoundingBox = new Ogre::WireBoundingBox();
 		mWireBoundingBox->setMaterial("BaseGreenLighting");
 	}
 	void MakeBoundingBoxBlue(void) {
 		CreateNewMatertials();
 		if (!mWireBoundingBox)
-			mWireBoundingBox = new Ogre::WireBoundingBox();
+		mWireBoundingBox = new Ogre::WireBoundingBox();
 		mWireBoundingBox->setMaterial("BaseBlueLighting");
 	}
 	void MakeBoundingBoxRed(void) {
 		CreateNewMatertials();
 		if (!mWireBoundingBox)
-			mWireBoundingBox = new Ogre::WireBoundingBox();
+		mWireBoundingBox = new Ogre::WireBoundingBox();
 		mWireBoundingBox->setMaterial("BaseRedLighting");
 	}
 	void MakeBoundingBoxOrange(void) {
 		CreateNewMatertials();
 		if (!mWireBoundingBox)
-			mWireBoundingBox = new Ogre::WireBoundingBox();
+		mWireBoundingBox = new Ogre::WireBoundingBox();
 		mWireBoundingBox->setMaterial("BaseOrangeLighting");
 	}
 	void MakeBoundingBoxBlack(void) {
 		CreateNewMatertials();
 		if (!mWireBoundingBox)
-			mWireBoundingBox = new Ogre::WireBoundingBox();
+		mWireBoundingBox = new Ogre::WireBoundingBox();
 		mWireBoundingBox->setMaterial("BaseBlackLighting");
 	}
 

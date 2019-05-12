@@ -14,7 +14,7 @@
 float GameMgr::fire_cooldown = 0.4;
 
 GameMgr::GameMgr(Engine *engine) :
-	Mgr(engine), m_camera_node(nullptr), m_camera_following(nullptr), m_plane(nullptr), m_camera_manual_control(OIS::KC_UNASSIGNED), m_desired_control(OIS::KC_UNASSIGNED), m_fire_cooldown(0), m_levels_won(0) {
+	Mgr(engine), m_camera_node(nullptr), m_camera_following(nullptr), m_plane(nullptr), m_enemies_following(0), m_camera_manual_control(OIS::KC_UNASSIGNED), m_desired_control(OIS::KC_UNASSIGNED), m_fire_cooldown(0), m_levels_won(0) {
 }
 
 GameMgr::~GameMgr(void) {
@@ -54,6 +54,8 @@ void GameMgr::Tick(float dt) {
 	//std::cout << q << "|" << x << "," << y << "," << z << "|||" << yaw.valueDegrees() << "," << pitch.valueDegrees() << "," << roll.valueDegrees() << std::endl;
 	//std::cout << m_plane->GetYaw() << "|" << m_plane->GetPitch() << "|" << m_plane->GetRoll() << std::endl;
 	//std::cout << x << "," << y << "," << z << std::endl;
+
+	std::cout << "Enemies Following: " << m_enemies_following << std::endl;
 }
 
 void GameMgr::Stop(void) {
@@ -190,6 +192,18 @@ unsigned int GameMgr::GetNumEnemies(void) const {
 	return m_enemies.size();
 }
 
+unsigned int GameMgr::GetNumEnemiesFollowing(void) const {
+	return m_enemies_following;
+}
+
+void GameMgr::AddEnemyFollowing(void) {
+	++m_enemies_following;
+}
+
+void GameMgr::RemoveEnemyFollowing(void) {
+	--m_enemies_following;
+}
+
 void GameMgr::MakeCamera(void) {
 	//m_engine->GetGfxMgr()->GetOgreCamera()->lookAt(Ogre::Vector3(0, 0, 0));
 	m_camera_node = m_engine->GetGfxMgr()->GetOgreSceneManager()->getRootSceneNode()->createChildSceneNode();
@@ -231,29 +245,29 @@ void GameMgr::MakeBoats(void) {
 	float change_x_per_object;
 
 	//3 carriers
-	change_x_per_object = 700.f;
-	for (unsigned int i = 0; i < 3; ++i)
+	change_x_per_object = 1200.f;
+	for (int i = -1; i <= 1; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::CarrierType, Ogre::Vector3(i * change_x_per_object, 0, -1000.f));
 
 	//4 frigates
-	change_x_per_object = 450.f;
-	for (unsigned int i = 0; i < 4; ++i)
-		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::FrigateType, Ogre::Vector3(i * change_x_per_object, 0, -800.f));
+	change_x_per_object = 800.f;
+	for (int i = -1; i <= 2; ++i)
+		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::FrigateType, Ogre::Vector3(i * change_x_per_object, 0, -500.f));
 
 	//5 destroyers
-	change_x_per_object = 250.f;
-	for (unsigned int i = 0; i < 5; ++i)
-		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::DestroyerType, Ogre::Vector3(i * change_x_per_object, 0, -600.f));
+	change_x_per_object = 1000.f;
+	for (int i = -2; i <= 2; ++i)
+		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::DestroyerType, Ogre::Vector3(i * change_x_per_object, 0, 50.f));
 
 	//6 speedboats
-	change_x_per_object = 200.f;
-	for (unsigned int i = 0; i < 6; ++i)
-		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::SpeedBoatType, Ogre::Vector3(i * change_x_per_object, 0, -425.f));
+	change_x_per_object = 700.f;
+	for (int i = -3; i <= 2; ++i)
+		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::SpeedBoatType, Ogre::Vector3(i * change_x_per_object, 0, 300.f));
 
 	//4 alienships
-	change_x_per_object = 250.f;
-	for (unsigned int i = 0; i < 4; ++i)
-		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::AlienType, Ogre::Vector3(i * change_x_per_object, 0, -250.f));
+	change_x_per_object = 750.f;
+	for (int i = -1; i <= 2; ++i)
+		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::AlienType, Ogre::Vector3(i * change_x_per_object, 0, 800.f));
 }
 
 void GameMgr::MakePlaneMain(int speed) {
@@ -264,21 +278,25 @@ void GameMgr::MakePlaneMain(int speed) {
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1);	//sets selection
 
 	m_plane->SetSpeedDesired(speed);
-	m_camera_following = m_plane;
+	//m_camera_following = m_plane;
 }
 
 void GameMgr::MakeEnemies(int level) {
 	if (level == 1) {
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(-1200, 85, -600)));
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(-1200, 85, 600)));
 		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(0, 85, 0)));
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(1200, 85, -600)));
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(1200, 85, 600)));
 	} else if (level == 2) {
 
 	}
 
-	std::cout << "LEVEL: " << level << std::endl;
-
 	Ogre::Vector3 extent(600, 75, 600);
 	for (Entity381* e : m_enemies)
 		e->AddCommand(new CommandPatrol(e, m_plane, e->GetPosition(), extent));
+
+	//m_camera_following = m_enemies.front();
 }
 
 void GameMgr::UpdateSelectedDesiredAtributes(float dt) {

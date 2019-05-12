@@ -24,18 +24,18 @@ void EntityMgr::Tick(float dt) {
 
 	if (m_entity_selected) {
 		m_entity_selected->GetAIAspect()->DrawBoundingBox(true);
-		m_entity_selected->ShowBoundingBox();
+		//m_entity_selected->ShowBoundingBox();
 #ifdef EDIT_BOUNDINGBOX_COLOR_EXPERIMENAL
 		static_cast<BoudingBoxColorChangerExperimenatal*>(m_entity_selected->GetOgreSceneNode())->MakeBoundingBoxGreen();
 #endif
 	}
 
+	return;
 	for (unsigned int i : m_entities_selected) {
 		m_entities[i]->ShowBoundingBox();
 #ifdef EDIT_BOUNDINGBOX_COLOR_EXPERIMENAL
 		static_cast<BoudingBoxColorChangerExperimenatal*>(m_entities[i]->GetOgreSceneNode())->MakeBoundingBoxBlue();
 #endif
-
 	}
 }
 

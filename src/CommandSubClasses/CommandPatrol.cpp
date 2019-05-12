@@ -5,9 +5,10 @@
 #include "Utils.h"
 
 #include "UIMgr.h"
+#include "GameMgr.h"
 
-CommandPatrol::CommandPatrol(Entity381* parent, Entity381* main_plane, const Ogre::Vector3 &center, const Ogre::Vector3 &extent, int patrol_speed) :
-	Command(parent), m_center(center), m_extent(extent), m_patrol_speed(patrol_speed), m_target(0.f), m_new_target_time(20), m_plane(main_plane), m_firing_cooldown(2) {
+CommandPatrol::CommandPatrol(Entity381* parent, const Entity381* main_plane, const Ogre::Vector3 &center, const Ogre::Vector3 &extent, int patrol_speed) :
+	Command(parent), m_center(center), m_extent(extent), m_patrol_speed(patrol_speed), m_target(0.f), m_new_target_time(20), m_plane(main_plane), m_is_following(false), m_firing_cooldown(2) {
 }
 
 CommandPatrol::~CommandPatrol(void) {
@@ -63,6 +64,8 @@ void CommandPatrol::Init(void) {
 	m_parent->m_yaw_rate = m_parent->m_pitch_rate = m_parent->m_roll_rate = Ogre::Degree(0);
 	m_parent->SetSpeedDesired(m_patrol_speed);
 
+	m_parent->HideBoundingBox();
+
 	UpdateTarget(m_center);
 
 	Command::Init();
@@ -80,16 +83,42 @@ void CommandPatrol::EnsureRollAndPitchReasonable(void) {
 }
 
 void CommandPatrol::UpdateTargetIfNecessary(void) {
-	if (m_new_target_time < 0 || m_parent->GetPosition().distance(m_target) < 10) {
-		m_new_target_time = 20;
-		Ogre::Vector3 v(Rand01() - 0.5, Rand01() - 0.5, Rand01() - 0.5);
-		Ogre::Vector3 v_change(m_extent.x * v.x, m_extent.y * v.y, m_extent.z * v.z);
+	if (m_is_following) {
+		if (!IsPlaneInPatrolZone()) {
+			m_is_following = false;
+			m_parent->m_engine->GetGameMgr()->RemoveEnemyFollowing();
+			UpdateTargetIfNecessary();
+			m_parent->HideBoundingBox();
+			return;
+		}
 
-		//std::cout << "CLOSE: " << v_change << std::endl;
+		if (m_new_target_time < 0 || m_parent->GetPosition().distance(m_target) < 10) {
+			m_new_target_time = 2;
 
-		UpdateTarget(m_center + 2 * v_change);
-		//UpdateTarget(m_plane->GetPosition());
-		//UpdateTarget(Ogre::Vector3(700, 10, -250));
+			Ogre::Vector3 plane_pos = m_plane->GetPosition();
+			float intercept_time = m_parent->GetPosition().distance(plane_pos) / m_patrol_speed;
+			Ogre::Vector3 target_new = plane_pos + m_plane->GetVelocity() * intercept_time;
+
+			UpdateTarget(target_new);
+			//UpdateTarget(m_plane->GetPosition());
+		}
+	} else {
+		if (IsPlaneInPatrolZone()) {
+			m_is_following = true;
+			m_parent->m_engine->GetGameMgr()->AddEnemyFollowing();
+			UpdateTargetIfNecessary();
+			m_parent->ShowBoundingBox();
+			return;
+		}
+
+		if (m_new_target_time < 0 || m_parent->GetPosition().distance(m_target) < 10) {
+			m_new_target_time = 10;
+
+			Ogre::Vector3 v_rand(Rand01() - 0.5, Rand01() - 0.5, Rand01() - 0.5);
+			Ogre::Vector3 target_new = m_center + 2 * m_extent * v_rand;
+			UpdateTarget(target_new);
+			//UpdateTarget(Ogre::Vector3(700, 10, -250));
+		}
 	}
 }
 
@@ -106,6 +135,13 @@ void CommandPatrol::UpdateTarget(const Ogre::Vector3 &target) {
 #endif
 }
 
+bool CommandPatrol::IsPlaneInPatrolZone(void) const {
+	Ogre::Vector3 plane_pos = m_plane->GetPosition();
+	return (plane_pos.x < m_center.x + m_extent.x && plane_pos.x > m_center.x - m_extent.x && plane_pos.y < m_center.y + m_extent.y && plane_pos.y > m_center.y - m_extent.y && plane_pos.z < m_center.z + m_extent.z
+		&& plane_pos.z > m_center.z - m_extent.z);
+
+}
+
 void CommandPatrol::UpdateBulletsAndFiring(float dt) {
 	for (std::list<Bullet*>::iterator b = m_bullets.begin(); b != m_bullets.end(); ++b) {
 		if (!((*b)->IsStillActive())) {
@@ -114,8 +150,8 @@ void CommandPatrol::UpdateBulletsAndFiring(float dt) {
 		} else {
 			(*b)->Tick(dt);
 			//check for collision with plane
-			if ((*b)->HasCollidedWithInLastTick(m_plane->GetPosition())) {
-				m_plane->m_engine->GetUIMgr()->SetHealthBarPercentage(-10, true);
+			if ((*b)->HasCollidedWithInLastTick(m_plane->GetPosition(), 35)) {
+				m_plane->m_engine->GetUIMgr()->SetHealthBarPercentage(-20, true);
 				(*b)->Deactivate();
 			}
 		}

@@ -14,10 +14,10 @@ Entity381::~Entity381(void) {
 }
 
 void Entity381::Tick(float dt) {
-	m_scene_node->showBoundingBox(false);
+	//m_scene_node->showBoundingBox(false);
 	for (Aspect *a : m_aspects)
 		a->Tick(dt);
-	m_AI_aspect->DrawBoundingBox();
+	//m_AI_aspect->DrawBoundingBox();
 }
 
 void Entity381::LoadAudio(void) {
