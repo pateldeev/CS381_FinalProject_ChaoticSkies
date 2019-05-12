@@ -21,6 +21,7 @@ public:
 
 	void RemoveAllCommands(void);
 	void AddCommand(Command *c, bool remove_past = false);
+	unsigned int GetNumCommands(void) const;
 
 	void AddSmoke(void);
 

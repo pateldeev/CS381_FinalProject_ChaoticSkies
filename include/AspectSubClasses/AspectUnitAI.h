@@ -15,6 +15,8 @@ public:
 	void SetCommand(Command *c);
 	void AddCommand(Command *c);
 
+	unsigned int GetNumCommands(void) const;
+
 	void RemoveAllCommands(void);
 
 	void DrawBoundingBox(bool draw_all = false) const;

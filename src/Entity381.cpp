@@ -41,6 +41,10 @@ void Entity381::AddCommand(Command *c, bool remove_past) {
 		m_AI_aspect->AddCommand(c);
 }
 
+unsigned int Entity381::GetNumCommands(void) const {
+	return m_AI_aspect->GetNumCommands();
+}
+
 void Entity381::AddSmoke(void) {
 	if (!m_smoke_node) {
 		Ogre::ParticleSystem* smoke = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke_" + m_name, "Crash/Smoke");

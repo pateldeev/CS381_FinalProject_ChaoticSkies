@@ -59,6 +59,8 @@ private:
 	void HandleBulletsAndFiring(float dt);
 	void RemoveDeadEntities(void);
 
+	void AddMoveToCommandsToBoats(void);
+
 	void SetCameraStateToDefault(void);
 
 private:
@@ -68,6 +70,8 @@ private:
 	Entity381* m_plane;
 	std::list<Entity381*> m_enemies;
 	unsigned int m_enemies_following;
+
+	std::list<Entity381*> m_boats;
 
 	//used to keep track of keys pressed for manual camera movement and changing desired
 	OIS::KeyCode m_camera_manual_control;

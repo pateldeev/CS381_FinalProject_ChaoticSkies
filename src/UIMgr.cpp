@@ -48,10 +48,10 @@ void UIMgr::LoadLevel(void) {
 }
 
 void UIMgr::Tick(float dt) {
-#if 1
+#if 0
 	static int x = 0;
 	if (++x == 1)
-		buttonHit(m_start_button);
+	buttonHit(m_start_button);
 #endif
 
 	m_tray_mgr->refreshCursor();
