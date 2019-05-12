@@ -162,7 +162,15 @@ void GameMgr::WinLevel(void) {
 
 void GameMgr::LoseLevel(void) {
 	std::cout << "LEVEL LOST" << std::endl;
-	ResetLevel();
+	m_engine->GetUIMgr()->ShowBackdrop();
+	m_engine->GetSoundMgr()->StopAllAudio();
+	m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("youlost/UI");
+	m_engine->GetUIMgr()->GetRestartButton()->show();
+
+	m_engine->GetUIMgr()->GetTrayMgr()->moveWidgetToTray(m_engine->GetUIMgr()->GetRestartButton(),OgreBites::TL_BOTTOMRIGHT);
+	//m_engine->GetUIMgr()->GetRestartButton()->getOverlayElement()->setPosition(0.8,0.8);
+
+
 }
 
 void GameMgr::ResetLevel(void) {
@@ -395,6 +403,7 @@ void GameMgr::HandleBulletsAndFiring(float dt) {
 				if ((*b)->HasCollidedWithInLastTick(e->GetPosition())) {
 					e->AddSmoke();
 					m_engine->GetSoundMgr()->PlayAudio(m_explosion_sound);
+					m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("enemydestroyed/UI");
 					e->AddCommand(new CommandDie(e), true);
 					m_engine->GetSoundMgr()->PauseAllAudio();
 					m_engine->GetSoundMgr()->PlayAudio(m_explosion_sound);
@@ -423,6 +432,7 @@ void GameMgr::RemoveDeadEntities(void) {
 		if (!(*i)->IsAlive()) {
 			m_engine->GetEntityMgr()->DeleteEntity(*i);
 			i = m_enemies.erase(i);
+			m_engine->GetUIMgr()->GetTrayMgr()->hideBackdrop();
 		}
 	}
 
