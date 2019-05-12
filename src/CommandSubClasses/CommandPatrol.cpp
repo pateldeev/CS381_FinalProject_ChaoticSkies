@@ -150,7 +150,7 @@ void CommandPatrol::UpdateBulletsAndFiring(float dt) {
 		} else {
 			(*b)->Tick(dt);
 			//check for collision with plane
-			if ((*b)->HasCollidedWithInLastTick(m_plane->GetPosition(), 35)) {
+			if ((*b)->HasCollidedWithInLastTick(m_plane->GetPosition(), 45)) {
 				m_plane->m_engine->GetUIMgr()->SetHealthBarPercentage(-20, true);
 				(*b)->Deactivate();
 			}

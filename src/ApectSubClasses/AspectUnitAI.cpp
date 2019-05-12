@@ -35,6 +35,10 @@ void AspectUnitAI::AddCommand(Command *c) {
 		c->Init();
 }
 
+unsigned int AspectUnitAI::GetNumCommands(void) const {
+	return m_commands.empty() ? 0 : m_commands.size();
+}
+
 void AspectUnitAI::RemoveAllCommands(void) {
 	while (!m_commands.empty()) {
 		m_commands.front()->Stop();
