@@ -40,8 +40,8 @@ void UIMgr::LoadLevel(void) {
 	m_levels = m_tray_mgr->createLabel(OgreBites::TL_BOTTOMLEFT, "LevelsWonCounter", "Levels won: ");
 	m_tray_mgr->getCursorImage()->hide();
 
-	m_engine->GetSoundMgr()->LoadAudio(m_intro_music, m_intro_music);
-	m_engine->GetSoundMgr()->LoadAudio(m_flight_sound, m_flight_sound);
+	m_engine->GetSoundMgr()->LoadAudio(m_intro_music, m_intro_music, true);
+	m_engine->GetSoundMgr()->LoadAudio(m_flight_sound, m_flight_sound, true);
 
 	m_engine->GetSoundMgr()->PlayAudio(m_intro_music);
 	//m_tray_mgr->showFrameStats(OgreBites::TL_TOPRIGHT);
@@ -95,7 +95,7 @@ void UIMgr::SetHealthBarPercentage(float percentage, bool accumulate) {
 
 void UIMgr::PlayFlightSound(void) {
 	m_engine->GetSoundMgr()->StopAllAudio();
-	m_engine->GetSoundMgr()->PlayAudio(m_engine->GetUIMgr()->m_flight_sound);
+	m_engine->GetSoundMgr()->PlayAudio(m_engine->GetUIMgr()->m_flight_sound,true);
 }
 
 void UIMgr::ShowBackdrop(void) {
