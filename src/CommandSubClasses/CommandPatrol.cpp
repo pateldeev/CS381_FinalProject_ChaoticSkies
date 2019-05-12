@@ -78,7 +78,7 @@ void CommandPatrol::EnsureRollAndPitchReasonable(void) {
 	if ((m_parent->GetPitch().valueDegrees() > 45 && m_parent->GetPitchRate().valueDegrees() > 0) || (m_parent->GetPitch().valueDegrees() < -45 && m_parent->GetPitchRate().valueDegrees() < 0))
 		m_parent->PitchStop();
 
-	if (m_parent->GetPosition().y <= 15 && m_parent->GetPitchRate().valueDegrees() > 0)
+	if (m_parent->GetPosition().y <= 20 && m_parent->GetPitchRate().valueDegrees() > 0)
 		m_parent->PitchUp();
 }
 

@@ -24,6 +24,7 @@ GameMgr::~GameMgr(void) {
 void GameMgr::Init(void) {
 	m_bullet_sound = "assets/sounds/shooting.ogg";
 	m_explosion_sound = "assets/sounds/Explosion.ogg";
+	m_outro_sound = "assets/sounds/outro.ogg";
 }
 
 void GameMgr::LoadLevel(void) {
@@ -150,11 +151,17 @@ void GameMgr::CrashPlane(void) {
 void GameMgr::WinLevel(void) {
 	std::cout << "WON LEVEL" << std::endl;
 
-	++m_levels_won;
-	if (m_levels_won > 2) {
+	m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("levelcomplete/UI");
+
+	if (++m_levels_won > 2) {
 		m_engine->GetUIMgr()->ShowBackdrop();
 		// needs a pauser
 		m_engine->StopRunning();
+	} else {
+		m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("Credits/UI");
+		m_engine->GetSoundMgr()->StopAllAudio();
+		m_engine->GetSoundMgr()->PlayAudio(m_outro_sound);
+		//m_engine->StopRunning();
 	}
 
 	ResetLevel();
@@ -167,9 +174,8 @@ void GameMgr::LoseLevel(void) {
 	m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("youlost/UI");
 	m_engine->GetUIMgr()->GetRestartButton()->show();
 
-	m_engine->GetUIMgr()->GetTrayMgr()->moveWidgetToTray(m_engine->GetUIMgr()->GetRestartButton(),OgreBites::TL_BOTTOMRIGHT);
-	//m_engine->GetUIMgr()->GetRestartButton()->getOverlayElement()->setPosition(0.8,0.8);
-
+	m_engine->GetUIMgr()->GetTrayMgr()->moveWidgetToTray(m_engine->GetUIMgr()->GetRestartButton(), OgreBites::TL_BOTTOMRIGHT);
+//m_engine->GetUIMgr()->GetRestartButton()->getOverlayElement()->setPosition(0.8,0.8);
 
 }
 
@@ -186,6 +192,7 @@ void GameMgr::ResetLevel(void) {
 
 	m_engine->GetUIMgr()->PlayFlightSound();
 	m_engine->GetUIMgr()->SetHealthBarPercentage(100);
+	m_engine->GetUIMgr()->GetTrayMgr()->hideBackdrop();
 }
 
 int GameMgr::GetLevelsWon(void) const {
@@ -213,7 +220,7 @@ void GameMgr::RemoveEnemyFollowing(void) {
 }
 
 void GameMgr::MakeCamera(void) {
-	//m_engine->GetGfxMgr()->GetOgreCamera()->lookAt(Ogre::Vector3(0, 0, 0));
+//m_engine->GetGfxMgr()->GetOgreCamera()->lookAt(Ogre::Vector3(0, 0, 0));
 	m_camera_node = m_engine->GetGfxMgr()->GetOgreSceneManager()->getRootSceneNode()->createChildSceneNode();
 	m_camera_node->attachObject(m_engine->GetGfxMgr()->GetOgreCamera());
 	SetCameraStateToDefault();
@@ -244,49 +251,49 @@ void GameMgr::MakeEntities(void) {
 	MakePlaneMain((m_levels_won == 0) ? 65 : 75);
 	MakeEnemies(m_levels_won + 1);
 
-	//Ogre::ParticleSystem* fireworks = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Fireworks");
-	//Ogre::SceneNode* fireworks_node = m_camera_following->GetOgreSceneNode()->createChildSceneNode("fireworks");
-	//fireworks_node->attachObject(fireworks);
+//Ogre::ParticleSystem* fireworks = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Fireworks");
+//Ogre::SceneNode* fireworks_node = m_camera_following->GetOgreSceneNode()->createChildSceneNode("fireworks");
+//fireworks_node->attachObject(fireworks);
 }
 
 void GameMgr::MakeBoats(void) {
 	float change_x_per_object;
 
-	//3 carriers
+//3 carriers
 	change_x_per_object = 1200.f;
 	for (int i = -1; i <= 1; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::CarrierType, Ogre::Vector3(i * change_x_per_object, 0, -1000.f));
 
-	//4 frigates
+//4 frigates
 	change_x_per_object = 800.f;
 	for (int i = -1; i <= 2; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::FrigateType, Ogre::Vector3(i * change_x_per_object, 0, -500.f));
 
-	//5 destroyers
+//5 destroyers
 	change_x_per_object = 1000.f;
 	for (int i = -2; i <= 2; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::DestroyerType, Ogre::Vector3(i * change_x_per_object, 0, 50.f));
 
-	//6 speedboats
+//6 speedboats
 	change_x_per_object = 700.f;
 	for (int i = -3; i <= 2; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::SpeedBoatType, Ogre::Vector3(i * change_x_per_object, 0, 300.f));
 
-	//4 alienships
+//4 alienships
 	change_x_per_object = 750.f;
 	for (int i = -1; i <= 2; ++i)
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::AlienType, Ogre::Vector3(i * change_x_per_object, 0, 800.f));
 }
 
 void GameMgr::MakePlaneMain(int speed) {
-	//add main plane
+//add main plane
 	m_plane = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(0, 85, 500));
-	//m_plane = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(0, 75, 0));
+//m_plane = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(0, 75, 0));
 
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1);	//sets selection
 
 	m_plane->SetSpeedDesired(speed);
-	//m_camera_following = m_plane;
+//m_camera_following = m_plane;
 }
 
 void GameMgr::MakeEnemies(int level) {
@@ -297,14 +304,18 @@ void GameMgr::MakeEnemies(int level) {
 		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(1200, 85, -600)));
 		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(1200, 85, 600)));
 	} else if (level == 2) {
-
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(-1200, 85, -600)));
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(-1200, 85, 600)));
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(0, 85, 0)));
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(1200, 85, -600)));
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(1200, 85, 600)));
 	}
 
 	Ogre::Vector3 extent(600, 75, 600);
 	for (Entity381* e : m_enemies)
 		e->AddCommand(new CommandPatrol(e, m_plane, e->GetPosition(), extent));
 
-	//m_camera_following = m_enemies.front();
+//m_camera_following = m_enemies.front();
 }
 
 void GameMgr::UpdateSelectedDesiredAtributes(float dt) {
@@ -414,7 +425,7 @@ void GameMgr::HandleBulletsAndFiring(float dt) {
 		}
 	}
 
-	//handle firing
+//handle firing
 	m_fire_cooldown -= dt;
 	if (m_engine->GetInputMgr()->IsKeyPressed(OIS::KC_SPACE) && m_fire_cooldown < 0) {
 		Ogre::Vector3 d = m_plane->GetDirection();

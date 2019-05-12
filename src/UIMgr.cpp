@@ -7,7 +7,7 @@
 #include "UIMgr.h"
 
 UIMgr::UIMgr(Engine* engine) :
-	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_start_button(nullptr), m_enemy_counter(nullptr), m_levels(nullptr), m_health_bar(nullptr) {
+	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_start_button(nullptr), m_restart_button(nullptr), m_enemy_counter(nullptr), m_levels(nullptr), m_health_bar(nullptr) {
 }
 
 UIMgr::~UIMgr(void) {
@@ -36,11 +36,9 @@ void UIMgr::LoadLevel(void) {
 	m_restart_button = m_tray_mgr->createButton(OgreBites::TL_BOTTOMRIGHT, "Restart", "Restart Game");
 	m_restart_button->hide();
 
-
 	m_enemy_counter = m_tray_mgr->createLabel(OgreBites::TL_BOTTOMLEFT, "EnemyCounter", "Enemy Counter: ");
 	m_levels = m_tray_mgr->createLabel(OgreBites::TL_BOTTOMLEFT, "LevelsWonCounter", "Levels won: ");
 	m_tray_mgr->getCursorImage()->hide();
-
 
 	m_engine->GetSoundMgr()->LoadAudio(m_intro_music, m_intro_music);
 	m_engine->GetSoundMgr()->LoadAudio(m_flight_sound, m_flight_sound);
@@ -52,8 +50,8 @@ void UIMgr::LoadLevel(void) {
 void UIMgr::Tick(float dt) {
 #if 1
 	static int x = 0;
-	if(++x == 1)
-	buttonHit(m_start_button);
+	if (++x == 1)
+		buttonHit(m_start_button);
 #endif
 
 	m_tray_mgr->refreshCursor();
@@ -129,20 +127,20 @@ void UIMgr::buttonHit(OgreBites::Button *b) {
 		b->hide();
 		m_tray_mgr->clearTray(OgreBites::TL_BOTTOMRIGHT);
 		m_tray_mgr->hideBackdrop();
-	}
-	else if(b->getName() == "Restart"){
+	} else if (b->getName() == "Restart") {
 		m_engine->GetGameMgr()->ResetLevel();
 		m_tray_mgr->hideBackdrop();
 	}
 }
-void UIMgr::buttonHide(OgreBites::Button *b){
+
+void UIMgr::buttonHide(OgreBites::Button *b) {
 	b->hide();
 }
 
-OgreBites::SdkTrayManager* UIMgr::GetTrayMgr(void){
+OgreBites::SdkTrayManager* UIMgr::GetTrayMgr(void) {
 	return m_tray_mgr;
 }
 
-OgreBites::Button* UIMgr::GetRestartButton(void){
+OgreBites::Button* UIMgr::GetRestartButton(void) {
 	return m_restart_button;
 }
