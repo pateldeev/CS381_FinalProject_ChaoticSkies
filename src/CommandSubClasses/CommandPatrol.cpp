@@ -80,6 +80,9 @@ void CommandPatrol::EnsureRollAndPitchReasonable(void) {
 
 	if (m_parent->GetPosition().y <= 20 && m_parent->GetPitchRate().valueDegrees() > 0)
 		m_parent->PitchUp();
+
+	if (m_parent->GetPosition().y >= 200 && m_parent->GetPitchRate().valueDegrees() < 0)
+		m_parent->PitchDown();
 }
 
 void CommandPatrol::UpdateTargetIfNecessary(void) {
@@ -152,6 +155,7 @@ void CommandPatrol::UpdateBulletsAndFiring(float dt) {
 			//check for collision with plane
 			if ((*b)->HasCollidedWithInLastTick(m_plane->GetPosition(), 45)) {
 				m_plane->m_engine->GetUIMgr()->SetHealthBarPercentage(-20, true);
+				m_plane->m_engine->GetGameMgr()->MakeExplosionSound();
 				(*b)->Deactivate();
 			}
 		}

@@ -161,7 +161,7 @@ void GameMgr::WinLevel(void) {
 	m_engine->GetUIMgr()->ShowBackdrop();
 	m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("levelcomplete/UI");
 
-	if (++m_levels_won > 2) {
+	if (++m_levels_won == 2) {
 		m_engine->GetUIMgr()->ShowBackdrop();
 		m_engine->GetSoundMgr()->StopAllAudio();
 		m_engine->GetSoundMgr()->PlayAudio(m_outro_sound);
@@ -223,6 +223,12 @@ void GameMgr::AddEnemyFollowing(void) {
 
 void GameMgr::RemoveEnemyFollowing(void) {
 	--m_enemies_following;
+}
+
+void GameMgr::MakeExplosionSound(void){
+	m_engine->GetSoundMgr()->PauseAllAudio();
+	m_engine->GetSoundMgr()->PlayAudio(m_explosion_sound);
+	m_engine->GetSoundMgr()->ResumeAllAudio();
 }
 
 void GameMgr::MakeCamera(void) {
@@ -410,10 +416,8 @@ void GameMgr::HandleBulletsAndFiring(float dt) {
 					e->AddSmoke();
 					m_engine->GetSoundMgr()->PlayAudio(m_explosion_sound);
 					m_engine->GetUIMgr()->GetTrayMgr()->showBackdrop("enemydestroyed/UI");
+					MakeExplosionSound();
 					e->AddCommand(new CommandDie(e), true);
-					m_engine->GetSoundMgr()->PauseAllAudio();
-					m_engine->GetSoundMgr()->PlayAudio(m_explosion_sound);
-					m_engine->GetSoundMgr()->ResumeAllAudio();
 					(*b)->Deactivate();
 				}
 			}
@@ -436,6 +440,7 @@ void GameMgr::HandleBulletsAndFiring(float dt) {
 void GameMgr::RemoveDeadEntities(void) {
 	for (std::list<Entity381*>::iterator i = m_enemies.begin(); i != m_enemies.end(); ++i) {
 		if (!(*i)->IsAlive()) {
+			m_engine->GetUIMgr()->GetTrayMgr()->hideBackdrop();
 			m_engine->GetEntityMgr()->DeleteEntity(*i);
 			i = m_enemies.erase(i);
 		}

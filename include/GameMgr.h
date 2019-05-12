@@ -40,6 +40,7 @@ public:
 	//only should be called by command patrol
 	void AddEnemyFollowing(void);
 	void RemoveEnemyFollowing(void);
+	void MakeExplosionSound(void);
 
 private:
 	void MakeCamera(void);
