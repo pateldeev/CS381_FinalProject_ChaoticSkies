@@ -6,8 +6,8 @@
 
 #include "UIMgr.h"
 
-CommandPatrol::CommandPatrol(Entity381* parent, Entity381* main_plane, const Ogre::Vector3 &center, const Ogre::Vector3 &extent) :
-	Command(parent), m_center(center), m_extent(extent), m_target(0.f), m_plane(main_plane), m_firing_cooldown(2) {
+CommandPatrol::CommandPatrol(Entity381* parent, Entity381* main_plane, const Ogre::Vector3 &center, const Ogre::Vector3 &extent, int patrol_speed) :
+	Command(parent), m_center(center), m_extent(extent), m_patrol_speed(patrol_speed), m_target(0.f), m_new_target_time(20), m_plane(main_plane), m_firing_cooldown(2) {
 }
 
 CommandPatrol::~CommandPatrol(void) {
@@ -20,7 +20,8 @@ CommandPatrol::~CommandPatrol(void) {
 
 void CommandPatrol::Tick(float dt) {
 	if (m_running) {
-		UpdateTargetIfClose();
+		m_new_target_time -= dt;
+		UpdateTargetIfNecessary();
 
 		Ogre::Plane p(Ogre::Vector3::UNIT_Y, 0);
 		Ogre::Vector3 v1 = p.projectVector(m_parent->GetDirection());
@@ -60,7 +61,7 @@ void CommandPatrol::Tick(float dt) {
 void CommandPatrol::Init(void) {
 	m_parent->m_speed = m_parent->m_speed_desired = 0;
 	m_parent->m_yaw_rate = m_parent->m_pitch_rate = m_parent->m_roll_rate = Ogre::Degree(0);
-	m_parent->SetSpeedDesired(55);
+	m_parent->SetSpeedDesired(m_patrol_speed);
 
 	UpdateTarget(m_center);
 
@@ -78,8 +79,9 @@ void CommandPatrol::EnsureRollAndPitchReasonable(void) {
 		m_parent->PitchUp();
 }
 
-void CommandPatrol::UpdateTargetIfClose(void) {
-	if (m_parent->GetPosition().distance(m_target) < 10) {
+void CommandPatrol::UpdateTargetIfNecessary(void) {
+	if (m_new_target_time < 0 || m_parent->GetPosition().distance(m_target) < 10) {
+		m_new_target_time = 20;
 		Ogre::Vector3 v(Rand01() - 0.5, Rand01() - 0.5, Rand01() - 0.5);
 		Ogre::Vector3 v_change(m_extent.x * v.x, m_extent.y * v.y, m_extent.z * v.z);
 

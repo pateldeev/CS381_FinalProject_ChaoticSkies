@@ -48,7 +48,7 @@ private:
 	OgreBites::SdkTrayManager* m_tray_mgr;
 	Ogre::OverlaySystem* m_overlay_system;
 
-	OgreBites::Button* m_next_button;
+	OgreBites::Button* m_start_button;
 
 	OgreBites::Label* m_enemy_counter;
 	OgreBites::Label* m_levels;

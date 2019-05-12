@@ -198,15 +198,13 @@ void GameMgr::MakeCamera(void) {
 }
 
 void GameMgr::MakeGround(void) {
-	Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
+	Ogre::MeshManager::getSingleton().createPlane("ocean", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, Ogre::Plane(Ogre::Vector3::UNIT_Y, 0), 15000, 15000, 20, 20, true, 1, 5, 5, Ogre::Vector3::UNIT_Z);
 
-	Ogre::MeshManager::getSingleton().createPlane("ocean", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME, plane, 15000, 15000, 20, 20, true, 1, 5, 5, Ogre::Vector3::UNIT_Z);
-
-	Ogre::Entity* groundEntity = m_engine->GetGfxMgr()->GetOgreSceneManager()->createEntity("ocean");
-	Ogre::SceneNode* groundNode = m_engine->GetGfxMgr()->GetOgreSceneManager()->getRootSceneNode()->createChildSceneNode("ocean");
-	groundNode->attachObject(groundEntity);
-	groundEntity->setCastShadows(false);
-	groundEntity->setMaterialName("OceanHLSL_GLSL"); //("Ocean2_HLSL_GLSL");//("Ocean2_Cg");//("NavyCg");
+	Ogre::Entity* ground_entity = m_engine->GetGfxMgr()->GetOgreSceneManager()->createEntity("ocean");
+	Ogre::SceneNode* ground_node = m_engine->GetGfxMgr()->GetOgreSceneManager()->getRootSceneNode()->createChildSceneNode("ocean");
+	ground_node->attachObject(ground_entity);
+	ground_entity->setCastShadows(false);
+	ground_entity->setMaterialName("OceanHLSL_GLSL"); //("Ocean2_HLSL_GLSL");//("Ocean2_Cg");//("NavyCg");
 }
 
 void GameMgr::MakeSky(void) {
@@ -221,8 +219,8 @@ void GameMgr::MakeLighting(void) {
 
 void GameMgr::MakeEntities(void) {
 	MakeBoats();
-	MakePlaneMain();
-	MakeEnemies();
+	MakePlaneMain((m_levels_won == 0) ? 65 : 75);
+	MakeEnemies(m_levels_won + 1);
 
 	//Ogre::ParticleSystem* fireworks = m_engine->GetGfxMgr()->GetOgreSceneManager()->createParticleSystem("smoke", "Examples/Fireworks");
 	//Ogre::SceneNode* fireworks_node = m_camera_following->GetOgreSceneNode()->createChildSceneNode("fireworks");
@@ -258,25 +256,29 @@ void GameMgr::MakeBoats(void) {
 		m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::AlienType, Ogre::Vector3(i * change_x_per_object, 0, -250.f));
 }
 
-void GameMgr::MakePlaneMain(void) {
+void GameMgr::MakePlaneMain(int speed) {
 	//add main plane
-	m_plane = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(18, 50, -50));
-	//m_plane = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(18, 50, -50));
+	m_plane = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::PlaneType, Ogre::Vector3(0, 85, 500));
+	//m_plane = m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(0, 75, 0));
 
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1);	//sets selection
 
-	m_plane->SetSpeedDesired(70);
+	m_plane->SetSpeedDesired(speed);
 	m_camera_following = m_plane;
 }
 
-void GameMgr::MakeEnemies(void) {
-	//5 banshees - enemies
-	float change_x_per_object = 550.f;
-	for (unsigned int i = 0; i < 5; ++i)
-		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(i * change_x_per_object, 100, -100.f)));
+void GameMgr::MakeEnemies(int level) {
+	if (level == 1) {
+		m_enemies.push_back(m_engine->GetEntityMgr()->CreateEntityOfTypeAtPosition(Entity381Types::BansheeType, Ogre::Vector3(0, 85, 0)));
+	} else if (level == 2) {
 
+	}
+
+	std::cout << "LEVEL: " << level << std::endl;
+
+	Ogre::Vector3 extent(600, 75, 600);
 	for (Entity381* e : m_enemies)
-		e->AddCommand(new CommandPatrol(e, m_plane, e->GetPosition()));
+		e->AddCommand(new CommandPatrol(e, m_plane, e->GetPosition(), extent));
 }
 
 void GameMgr::UpdateSelectedDesiredAtributes(float dt) {
@@ -416,7 +418,7 @@ void GameMgr::SetCameraStateToDefault(void) {
 #if 0
 	m_camera_node->setPosition(0, 50, 75);
 #else
-	m_camera_node->setPosition(0, 1000, 0);
+	m_camera_node->setPosition(0, 3000, 0);
 	m_camera_node->pitch(Ogre::Degree(-90));
 #endif
 

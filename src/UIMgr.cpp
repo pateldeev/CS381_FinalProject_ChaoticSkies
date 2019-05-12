@@ -7,7 +7,7 @@
 #include "UIMgr.h"
 
 UIMgr::UIMgr(Engine* engine) :
-	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_next_button(nullptr), m_enemy_counter(nullptr), m_levels(nullptr), m_health_bar(nullptr) {
+	Mgr(engine), m_tray_mgr(nullptr), m_overlay_system(nullptr), m_start_button(nullptr), m_enemy_counter(nullptr), m_levels(nullptr), m_health_bar(nullptr) {
 }
 
 UIMgr::~UIMgr(void) {
@@ -29,25 +29,25 @@ void UIMgr::LoadLevel(void) {
 
 	m_tray_mgr->showBackdrop("Intro/UI");
 
-	m_next_button = m_tray_mgr->createButton(OgreBites::TL_BOTTOMRIGHT, "Next_Button", "next");
+	m_start_button = m_tray_mgr->createButton(OgreBites::TL_BOTTOMRIGHT, "Start_Button", "next");
 
 	m_tray_mgr->createButton(OgreBites::TL_BOTTOMLEFT, "Credits", "View Credits");
 	m_tray_mgr->createButton(OgreBites::TL_BOTTOMLEFT, "Exit", "Exit Game!");
 	m_enemy_counter = m_tray_mgr->createLabel(OgreBites::TL_BOTTOMLEFT, "EnemyCounter", "Enemy Counter: ");
 	m_levels = m_tray_mgr->createLabel(OgreBites::TL_BOTTOMLEFT, "LevelsWonCounter", "Levels won: ");
+	m_tray_mgr->getCursorImage()->hide();
 
 	m_engine->GetSoundMgr()->LoadAudio(m_intro_music, m_intro_music);
-	m_engine->GetSoundMgr()->LoadAudio(m_engine->GetUIMgr()->m_flight_sound, m_engine->GetUIMgr()->m_flight_sound);
+	m_engine->GetSoundMgr()->LoadAudio(m_flight_sound, m_flight_sound);
 
 	m_engine->GetSoundMgr()->PlayAudio(m_intro_music);
-	m_tray_mgr->getCursorImage()->hide();
 }
 
 void UIMgr::Tick(float dt) {
 #if 0
 	static int x = 0;
 	if(++x == 1)
-	buttonHit(m_next_button);
+	buttonHit(m_start_button);
 #endif
 
 	m_tray_mgr->refreshCursor();
@@ -110,19 +110,14 @@ void UIMgr::buttonHit(OgreBites::Button *b) {
 		m_engine->StopRunning();
 	}
 
-	else if (b->getName() == "Next_Button") {
-		m_engine->GetGameMgr()->WinLevel();
+	else if (b->getName() == "Start_Button") {
+		m_engine->GetGameMgr()->ResetLevel();
 
 		m_engine->GetSoundMgr()->StopAllAudio();
-
-		m_flight_sound = "assets/sounds/inflight.ogg";
-		m_engine->GetSoundMgr()->LoadAudio(m_flight_sound, m_flight_sound);
 		m_engine->GetSoundMgr()->PlayAudio(m_flight_sound);
 
 		m_health_bar = m_tray_mgr->createProgressBar(OgreBites::TL_TOP, "HealthBar", "Health", 500, 400);
 		SetHealthBarPercentage(100);
-
-		m_engine->GetGameMgr()->SetLevelsWon(0);
 
 		//Need to figure out a way to delete the next button completely. Right now it appears in the upper left part of the screen and causes an error when pressed
 		b->hide();
