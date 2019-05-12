@@ -44,7 +44,7 @@ public:
 
 private:
 	virtual void buttonHit(OgreBites::Button *b) override final;
-	 void buttonHide(OgreBites::Button *b);
+	void buttonHide(OgreBites::Button *b);
 
 private:
 	OgreBites::InputContext m_input_context;
@@ -56,8 +56,6 @@ private:
 
 	OgreBites::Label* m_enemy_counter;
 	OgreBites::Label* m_levels;
-	OgreBites::Label* m_position;
-	OgreBites::Label* m_enemy_position;
 
 	OgreBites::ProgressBar* m_health_bar;
 

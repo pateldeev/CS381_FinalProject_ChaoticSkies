@@ -78,6 +78,7 @@ private:
 
 	std::string m_explosion_sound;
 	std::string m_bullet_sound;
+	std::string m_outro_sound;
 
 	int m_levels_won;
 
