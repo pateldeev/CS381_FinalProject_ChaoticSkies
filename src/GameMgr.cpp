@@ -301,7 +301,7 @@ void GameMgr::MakePlaneMain(int speed) {
 	m_engine->GetEntityMgr()->SelectEntity(m_engine->GetEntityMgr()->GetEntityCount() - 1);	//sets selection
 
 	m_plane->SetSpeedDesired(speed);
-  m_camera_following = m_plane;
+	m_camera_following = m_plane;
 }
 
 void GameMgr::MakeEnemies(int level) {
